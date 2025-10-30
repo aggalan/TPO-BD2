@@ -1,0 +1,12 @@
+# Dependencias
+node_modules
+
+# Archivo de secretos
+.env
+
+# Logs
+*.log
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
