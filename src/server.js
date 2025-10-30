@@ -1,7 +1,7 @@
 // src/server.js
 require('dotenv').config();
 const app = require('./app');
-const { connectAll } = require('./config/db'); // Importa la función
+const { connectAll } = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 

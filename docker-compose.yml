@@ -7,13 +7,13 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src:/app/src # Sincroniza tu código local
-    env_file: ./.env   # Carga los secretos
+      - ./src:/app/src
+    env_file: ./.env
     depends_on:
       - mongo
       - neo4j
       - redis
-    command: npm run dev # <-- Necesitaremos este script
+    command: npm run dev
 
   mongo:
     image: mongo:latest
@@ -32,7 +32,7 @@ services:
     volumes:
       - neo4j-data:/data
     environment:
-      - NEO4J_AUTH=neo4j/password123 # <-- Cambia esto
+      - NEO4J_AUTH=neo4j/password123
 
   redis:
     image: redis:latest
