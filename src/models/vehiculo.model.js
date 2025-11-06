@@ -11,7 +11,6 @@ const VehiculoSchema = new mongoose.Schema({
     id_cliente: {
         type: Number,
         required: true,
-        unique: true,
         index: true,
     },
     nro_chasis: {

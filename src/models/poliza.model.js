@@ -28,16 +28,16 @@ const PolizaSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    fecha_vencimiento: {
+    fecha_fin: {
         type: Date,
         required: true,
     },
 
-    monto_prima: {
+    prima_mensual: {
         type: Number,
         required: true,
     },
-    monto_cobertura: {
+    cobertura_total: {
         type: Number,
         required: true,
     },

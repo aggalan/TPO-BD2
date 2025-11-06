@@ -39,7 +39,7 @@ const ClienteSchema = new mongoose.Schema({
         type: DomicilioSchema,
         required: true,
     },
-    estado_activo: {
+    activo: {
         type: Boolean,
         default: true,
     },

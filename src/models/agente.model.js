@@ -12,6 +12,10 @@ const AgenteSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    apellido: {
+        type: String,
+        required: true,
+    },
     matricula: {
         type: String,
         required: true,

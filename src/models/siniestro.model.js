@@ -26,14 +26,14 @@ const SiniestroSchema = new mongoose.Schema({
     descripcion: {
         type: String,
     },
-    monto: {
+    monto_estimado: {
         type: Number,
         required: true,
     },
     estado: {
         type: String,
         required: true,
-        enum: ['abierto', 'en_proceso', 'cerrado_pagado', 'cerrado_rechazado'],
+        enum: ['abierto', 'en_evaluacion', 'cerrado'],
         default: 'abierto',
     }
 }, { timestamps: true });
