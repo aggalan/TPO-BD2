@@ -11,7 +11,6 @@ services:
     env_file: ./.env
     depends_on:
       - mongo
-      - neo4j
       - redis
     command: npm run dev
 
@@ -23,16 +22,6 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  neo4j:
-    image: neo4j:5
-    container_name: tp-neo4j
-    ports:
-      - "7474:7474" # UI Web
-      - "7687:7687" # Driver (Bolt)
-    volumes:
-      - neo4j-data:/data
-    environment:
-      - NEO4J_AUTH=neo4j/password123
 
   redis:
     image: redis:latest
@@ -44,5 +33,4 @@ services:
 
 volumes:
   mongo-data:
-  neo4j-data:
   redis-data:
