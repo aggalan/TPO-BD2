@@ -8,12 +8,6 @@ const VehiculoSchema = new mongoose.Schema({
         unique: true,
         index: true,
     },
-    id_cliente: {
-        type: Number,
-        required: true,
-        unique: true,
-        index: true,
-    },
     nro_chasis: {
         type: String,
         required: true,
