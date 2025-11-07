@@ -8,7 +8,9 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
   try {
     await connectAll();
-    
+
+    //correr el csv initial data load only once
+
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);
     });
