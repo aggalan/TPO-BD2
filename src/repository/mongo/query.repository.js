@@ -1,7 +1,6 @@
 // src/repository/mongo/query.repository.js
 const Cliente = require('../../models/cliente.model');
 const Poliza = require('../../models/poliza.model');
-const Vehiculo = require('../../models/vehiculo.model');
 const Agente = require('../../models/agente.model');
 const Siniestro = require('../../models/siniestro.model');
 
@@ -60,17 +59,9 @@ const clientesActivosConPolizasVigentes = async () => {
 };
 
 const vehiculosAseguradosConClienteYPoliza = async () => {
-  const results = await Vehiculo.aggregate([
-    { $match: { asegurado: true } },
-    {
-      $lookup: {
-        from: 'clientes',
-        localField: 'id_cliente',
-        foreignField: 'id_cliente',
-        as: 'cliente',
-      },
-    },
-    { $unwind: '$cliente' },
+  const results = await Cliente.aggregate([
+    { $unwind: '$vehiculos' },
+    { $match: { 'vehiculos.asegurado': true } },
     {
       $lookup: {
         from: 'polizas',
@@ -102,15 +93,15 @@ const vehiculosAseguradosConClienteYPoliza = async () => {
     {
       $project: {
         _id: 0,
-        id_vehiculo: 1,
-        marca: 1,
-        modelo: 1,
-        anio: 1,
-        patente: 1,
+        id_vehiculo: '$vehiculos.id_vehiculo',
+        marca: '$vehiculos.marca',
+        modelo: '$vehiculos.modelo',
+        anio: '$vehiculos.anio',
+        patente: '$vehiculos.patente',
         cliente: {
-          id_cliente: '$cliente.id_cliente',
-          nombre: '$cliente.nombre',
-          apellido: '$cliente.apellido',
+          id_cliente: '$id_cliente',
+          nombre: '$nombre',
+          apellido: '$apellido',
         },
         polizas: 1,
       },
@@ -164,24 +155,16 @@ const agentesActivosConCantidadPolizas = async () => {
   const results = await Agente.aggregate([
     { $match: { activo: true } },
     {
-      $lookup: {
-        from: 'polizas',
-        localField: 'id_agente',
-        foreignField: 'id_agente',
-        as: 'polizas',
-      },
-    },
-    {
       $project: {
         _id: 0,
         id_agente: 1,
-        nombre_completo: { $concat: ['$nombre', ' ', '$apellido'] },
+        nombre: 1,
+        apellido: 1,
         matricula: 1,
         zona: 1,
-        cantidad_polizas: { $size: '$polizas' },
       },
     },
-    { $sort: { cantidad_polizas: -1, nombre_completo: 1 } },
+    { $sort: { apellido: 1, nombre: 1 } },
   ]);
 
   return results;
@@ -310,34 +293,26 @@ const polizasSuspendidasConEstadoCliente = async () => {
 };
 
 const clientesConMultiplesVehiculos = async () => {
-  const results = await Vehiculo.aggregate([
-    { $match: { asegurado: true } },
-    {
-      $group: {
-        _id: '$id_cliente',
-        cantidad_vehiculos: { $sum: 1 },
-      },
-    },
-    { $match: { cantidad_vehiculos: { $gt: 1 } } },
-    {
-      $lookup: {
-        from: 'clientes',
-        localField: '_id',
-        foreignField: 'id_cliente',
-        as: 'cliente',
-      },
-    },
-    { $unwind: '$cliente' },
+  const results = await Cliente.aggregate([
     {
       $project: {
         _id: 0,
-        id_cliente: '$cliente.id_cliente',
-        nombre: '$cliente.nombre',
-        apellido: '$cliente.apellido',
-        cantidad_vehiculos: 1,
+        id_cliente: 1,
+        nombre: 1,
+        apellido: 1,
+        cantidad_vehiculos: {
+          $size: {
+            $filter: {
+              input: { $ifNull: ['$vehiculos', []] },
+              as: 'vehiculo',
+              cond: { $eq: ['$$vehiculo.asegurado', true] },
+            },
+          },
+        },
       },
     },
-    { $sort: { cantidad_vehiculos: -1 } },
+    { $match: { cantidad_vehiculos: { $gt: 1 } } },
+    { $sort: { cantidad_vehiculos: -1, apellido: 1 } },
   ]);
 
   return results;
@@ -475,58 +450,19 @@ const siniestrosAccidenteUltimoAnio = async () => {
 
 const agentesConCantidadSiniestros = async () => {
   const results = await Agente.aggregate([
-    {
-      $lookup: {
-        from: 'polizas',
-        let: { agenteId: '$id_agente' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$id_agente', '$$agenteId'] },
-            },
-          },
-          {
-            $lookup: {
-              from: 'siniestros',
-              localField: 'nro_poliza',
-              foreignField: 'nro_poliza',
-              as: 'siniestros',
-            },
-          },
-          { $unwind: { path: '$siniestros', preserveNullAndEmptyArrays: false } },
-          {
-            $group: {
-              _id: null,
-              cantidad: { $sum: 1 },
-            },
-          },
-        ],
-        as: 'siniestros_resumen',
-      },
-    },
-    {
-      $addFields: {
-        cantidad_siniestros: {
-          $ifNull: [{ $first: '$siniestros_resumen.cantidad' }, 0],
-        },
-      },
-    },
+    { $match: { activo: true } },
     {
       $project: {
         _id: 0,
         id_agente: '$id_agente',
-        cantidad_siniestros: 1,
-        agente: {
-          id_agente: '$id_agente',
-          nombre: '$nombre',
-          apellido: '$apellido',
-          matricula: '$matricula',
-          zona: '$zona',
-          activo: '$activo',
-        },
+        nombre: '$nombre',
+        apellido: '$apellido',
+        matricula: '$matricula',
+        zona: '$zona',
+        activo: '$activo',
       },
     },
-    { $sort: { cantidad_siniestros: -1, id_agente: 1 } },
+    { $sort: { apellido: 1, nombre: 1 } },
   ]);
 
   return results;

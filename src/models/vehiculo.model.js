@@ -1,45 +1,41 @@
 // src/models/vehiculo.model.js
 const mongoose = require('mongoose');
 
-const VehiculoSchema = new mongoose.Schema({
+const VehiculoSchema = new mongoose.Schema(
+  {
     id_vehiculo: {
-        type: Number,
-        required: true,
-        unique: true,
-        index: true,
-    },
-    id_cliente: {
-        type: Number,
-        required: true,
-        index: true,
+      type: Number,
+      required: true,
     },
     nro_chasis: {
-        type: String,
-        required: true,
-        unique: true,
+      type: String,
+      required: true,
     },
     patente: {
-        type: String,
-        required: true,
-        unique: true,
+      type: String,
+      required: true,
     },
     marca: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     modelo: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-    anio:{
-        type: Number,
-        required: true,
+    anio: {
+      type: Number,
+      required: true,
+      min: 1900,
     },
     asegurado: {
-        type: Boolean,
-        default: true,
+      type: Boolean,
+      default: true,
     },
+  },
+  { _id: false },
+);
 
-}, { timestamps: true });
-
-module.exports = mongoose.model('Vehiculo', VehiculoSchema);
+module.exports = {
+  VehiculoSchema,
+};

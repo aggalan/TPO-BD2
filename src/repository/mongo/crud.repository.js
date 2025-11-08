@@ -2,7 +2,6 @@
 const Cliente = require('../../models/cliente.model');
 const Poliza = require('../../models/poliza.model');
 const Siniestro = require('../../models/siniestro.model');
-const Vehiculo = require('../../models/vehiculo.model');
 const Agente = require('../../models/agente.model');
 
 const getNextSequentialId = async (Model, fieldName) => {
@@ -82,8 +81,6 @@ const getPolizaByNumero = async (nroPoliza) => Poliza.findOne({ nro_poliza: nroP
 
 const getPolizasByCliente = async (idCliente) => Poliza.find({ id_cliente: idCliente }).lean();
 
-const getVehiculosByCliente = async (idCliente) => Vehiculo.find({ id_cliente: idCliente }).lean();
-
 const coberturaTotalPorCliente = async (idCliente) => {
   const result = await Poliza.aggregate([
     { $match: { id_cliente: idCliente } },
@@ -118,7 +115,6 @@ module.exports = {
   getAgenteById,
   getPolizaByNumero,
   getPolizasByCliente,
-  getVehiculosByCliente,
   coberturaTotalPorCliente,
   getClientesByIds,
 };

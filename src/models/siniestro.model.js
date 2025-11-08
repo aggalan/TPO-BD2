@@ -38,4 +38,7 @@ const SiniestroSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Siniestro', SiniestroSchema);
+const SiniestroModel = mongoose.model('Siniestro', SiniestroSchema);
+
+module.exports = SiniestroModel;
+module.exports.SiniestroSchema = SiniestroSchema;

@@ -3,7 +3,10 @@ const {
   createSiniestro: createSiniestroMongo,
   getPolizaByNumero,
 } = require('../repository/mongo/crud.repository');
-const { invalidateCache } = require('../repository/redis/cache.repository');
+const {
+  invalidateCache,
+  incrementAgentSiniestrosMetric,
+} = require('../repository/redis/cache.repository');
 
 const SINIESTRO_CACHE_KEYS = [
   'siniestros_abiertos',
@@ -66,6 +69,7 @@ const crearSiniestro = async (payload) => {
   };
 
   const siniestro = await createSiniestroMongo(siniestroData);
+  await incrementAgentSiniestrosMetric(poliza.id_agente).catch(() => undefined);
   await invalidateSiniestroCaches();
   return siniestro;
 };

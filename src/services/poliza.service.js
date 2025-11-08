@@ -7,6 +7,7 @@ const {
 const {
   invalidateCache,
   updateCoberturaRanking,
+  incrementAgentPolizasMetric,
 } = require('../repository/redis/cache.repository');
 
 const POLIZA_CACHE_KEYS = [
@@ -98,6 +99,7 @@ const emitirPoliza = async (payload) => {
   }
 
   const poliza = await createPolizaMongo(polizaData);
+  await incrementAgentPolizasMetric(poliza.id_agente).catch(() => undefined);
   await updateCoberturaRanking(poliza.id_cliente, poliza.cobertura_total ?? 0);
   await invalidatePolizaCaches();
   return poliza;

@@ -6,10 +6,13 @@ const path = require('path');
 const mongoose = require('mongoose');
 
 const { connectAll, redisClient } = require('../src/config/db');
+const {
+  resetAgentPolizaMetrics,
+  resetAgentSiniestroMetrics,
+} = require('../src/repository/redis/cache.repository');
 const Cliente = require('../src/models/cliente.model');
 const Poliza = require('../src/models/poliza.model');
 const Siniestro = require('../src/models/siniestro.model');
-const Vehiculo = require('../src/models/vehiculo.model');
 const Agente = require('../src/models/agente.model');
 
 const rootDir = path.join(__dirname, '..');
@@ -169,20 +172,40 @@ const resetMongoCollections = async () => {
     Cliente.deleteMany({}),
     Poliza.deleteMany({}),
     Siniestro.deleteMany({}),
-    Vehiculo.deleteMany({}),
     Agente.deleteMany({}),
   ]);
 };
 
 const seedMongo = async ({ clientes, polizasWithAgent, siniestros, vehiculos, agentes }) => {
-  await Cliente.insertMany(clientes);
+  const vehiculosPorCliente = vehiculos.reduce((acc, vehiculo) => {
+    if (vehiculo.id_cliente == null) return acc;
+    if (!acc.has(vehiculo.id_cliente)) {
+      acc.set(vehiculo.id_cliente, []);
+    }
+    acc.get(vehiculo.id_cliente).push({
+      id_vehiculo: vehiculo.id_vehiculo,
+      marca: vehiculo.marca,
+      modelo: vehiculo.modelo,
+      anio: vehiculo.anio,
+      patente: vehiculo.patente,
+      nro_chasis: vehiculo.nro_chasis,
+      asegurado: vehiculo.asegurado,
+    });
+    return acc;
+  }, new Map());
+
+  const clientesEmbebidos = clientes.map((cliente) => ({
+    ...cliente,
+    vehiculos: vehiculosPorCliente.get(cliente.id_cliente) ?? [],
+  }));
+
+  await Cliente.insertMany(clientesEmbebidos);
   await Agente.insertMany(agentes);
-  await Vehiculo.insertMany(vehiculos);
   await Poliza.insertMany(polizasWithAgent);
   await Siniestro.insertMany(siniestros);
 };
 
-const seedRedis = async ({ polizasWithAgent }) => {
+const seedRedis = async ({ polizasWithAgent, siniestros }) => {
   await redisClient.flushDb();
 
   const coberturaPorCliente = polizasWithAgent.reduce((acc, poliza) => {
@@ -199,6 +222,37 @@ const seedRedis = async ({ polizasWithAgent }) => {
   if (rankingEntries.length > 0) {
     await redisClient.zAdd('ranking:cobertura_total', rankingEntries);
   }
+
+  const polizasPorAgente = polizasWithAgent.reduce((acc, poliza) => {
+    if (!Number.isFinite(poliza.id_agente)) return acc;
+    acc[poliza.id_agente] = (acc[poliza.id_agente] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  await resetAgentPolizaMetrics(
+    Object.entries(polizasPorAgente).map(([idAgente, cantidad]) => ({
+      id_agente: Number(idAgente),
+      cantidad,
+    })),
+  );
+
+  const polizaAgenteMap = new Map(
+    polizasWithAgent.map((poliza) => [poliza.nro_poliza, poliza.id_agente]),
+  );
+
+  const siniestrosPorAgente = siniestros.reduce((acc, siniestro) => {
+    const agenteId = polizaAgenteMap.get(siniestro.nro_poliza);
+    if (!Number.isFinite(agenteId)) return acc;
+    acc[agenteId] = (acc[agenteId] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  await resetAgentSiniestroMetrics(
+    Object.entries(siniestrosPorAgente).map(([idAgente, cantidad]) => ({
+      id_agente: Number(idAgente),
+      cantidad,
+    })),
+  );
 };
 
 const run = async () => {

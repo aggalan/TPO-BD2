@@ -5,6 +5,8 @@ const {
   setCachedResult,
   getTopCobertura,
   resetCoberturaRanking,
+  getAgentPolizaMetricMap,
+  getAgentSiniestroMetricMap,
 } = require('../repository/redis/cache.repository');
 const {
   getClientesByIds,
@@ -59,9 +61,28 @@ const getAgentesActivosConCantidadPolizas = async () => {
   const cached = await getCachedResult(cacheKey);
   if (cached) return cached;
 
-  const data = await mongoQueries.agentesActivosConCantidadPolizas();
-  await setCachedResult(cacheKey, data, 180);
-  return data;
+  const [agents, metricsMap] = await Promise.all([
+    mongoQueries.agentesActivosConCantidadPolizas(),
+    getAgentPolizaMetricMap(),
+  ]);
+
+  const enriched = agents
+    .map((agent) => ({
+      id_agente: agent.id_agente,
+      nombre_completo: `${agent.nombre} ${agent.apellido}`,
+      matricula: agent.matricula,
+      zona: agent.zona,
+      cantidad_polizas: metricsMap.get(agent.id_agente) ?? 0,
+    }))
+    .sort((a, b) => {
+      if (b.cantidad_polizas !== a.cantidad_polizas) {
+        return b.cantidad_polizas - a.cantidad_polizas;
+      }
+      return a.nombre_completo.localeCompare(b.nombre_completo);
+    });
+
+  await setCachedResult(cacheKey, enriched, 180);
+  return enriched;
 };
 
 const getPolizasVencidasConCliente = async () => {
@@ -153,9 +174,33 @@ const getAgentesConCantidadSiniestros = async () => {
   const cached = await getCachedResult(cacheKey);
   if (cached) return cached;
 
-  const data = await mongoQueries.agentesConCantidadSiniestros();
-  await setCachedResult(cacheKey, data, 600);
-  return data;
+  const [agents, metricsMap] = await Promise.all([
+    mongoQueries.agentesConCantidadSiniestros(),
+    getAgentSiniestroMetricMap(),
+  ]);
+
+  const enriched = agents
+    .map((agent) => ({
+      id_agente: agent.id_agente,
+      cantidad_siniestros: metricsMap.get(agent.id_agente) ?? 0,
+      agente: {
+        id_agente: agent.id_agente,
+        nombre: agent.nombre,
+        apellido: agent.apellido,
+        matricula: agent.matricula,
+        zona: agent.zona,
+        activo: agent.activo,
+      },
+    }))
+    .sort((a, b) => {
+      if (b.cantidad_siniestros !== a.cantidad_siniestros) {
+        return b.cantidad_siniestros - a.cantidad_siniestros;
+      }
+      return a.id_agente - b.id_agente;
+    });
+
+  await setCachedResult(cacheKey, enriched, 600);
+  return enriched;
 };
 
 module.exports = {
