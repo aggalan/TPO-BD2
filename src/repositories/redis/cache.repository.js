@@ -52,7 +52,7 @@ async function setCache(key, value, ttlSeconds = 60) {
 async function getOrSetCache(key, ttlSeconds, fetchFn) {
     const cached = await getCache(key);
     if (cached !== null) {
-        return cached; // ✅ devuelve cache
+        return cached;
     }
 
     const freshData = await fetchFn();
