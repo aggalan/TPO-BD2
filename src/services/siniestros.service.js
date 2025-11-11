@@ -2,13 +2,11 @@ import { createError,normalizeSiniestroEstado,parseDate } from '../utils/utils.j
 import {get} from "mongoose";
 const {
     createSiniestro: createSiniestroMongo,
-    getActivePolizaById,
-    getActiveClienteById,
+    getSiniestrosAbiertosConCliente: getSiniestrosAbiertosConClienteMongo,
+    getSiniestrosAccidenteUltimoAnio: getSiniestrosAccidenteUltimoAnioMongo,
 } = require('../repositories/mongo/siniestro.repository.js');
 
-const {
-    invalidateCache,
-} = require('../repositories/redis/cache.repository.js');
+
 
 
 async function createSiniestro(siniestroData) {
@@ -38,8 +36,6 @@ async function createSiniestro(siniestroData) {
     if (fechaSiniestro < polizaActiva.fecha_inicio || fechaSiniestro > polizaActiva.fecha_vencimiento) {  //TODO CHECK THIS
         throw new Error(`El siniestro (Fecha: ${fechaSiniestro.toISOString()}) está fuera del período de cobertura de la póliza (Inicio: ${polizaActiva.fecha_inicio.toISOString()}, Fin: ${polizaActiva.fecha_vencimiento.toISOString()}).`);
     }
-
-
     const newSiniestro = await createSiniestroMongo(cleanedData);
 
     //
@@ -53,11 +49,20 @@ async function createSiniestro(siniestroData) {
     *  Query 8 INVALIDAR la lista cacheada de "siniestros por accidente del último año".
     *
     */
-
     return newSiniestro;
 }
 
+async function siniestrosAbiertosConCliente() {
+    return await getSiniestrosAbiertosConClienteMongo();
+}
 
-export {
-    createSiniestro
+async function siniestrosAccidenteUltimoAnio() {
+    return await  getSiniestrosAccidenteUltimoAnioMongo();
+}
+
+
+module.exports = {
+    createSiniestro,
+    siniestrosAbiertosConCliente,
+    siniestrosAccidenteUltimoAnio
 }
