@@ -3,10 +3,8 @@ import { createError,parseDate,normalizePolizaEstado } from '../utils/utils.js';
 const {
     createPoliza: createPolizaMongo,
     polizasVencidasPorCliente: polizasVencidasConCliente,
-    polizasActivasOrdenads: polizasActivasOrdenadas,
-    polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoCliente
-
-
+    polizasActivasOrdenads: polizasActivasOrdenadasMongo,
+    polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoClienteMongo
 } = require('../repositories/mongo/poliza.repository.js');
 
 const {
@@ -64,14 +62,14 @@ async function PolizasVencidasConCliente(){
 
 async function polizasActivasOrdenadas(){
     //TODO:consulto cache
-    const data = await polizasActivasOrdenadas();
+    const data = await polizasActivasOrdenadasMongo();
     //TODO:agrego cache
     return data;
 }
 
 async function polizasSuspendidasConEstadoCliente(){
     //consulto cache
-    const data = await polizasVencidasConCliente();
+    const data = await polizasSuspendidasConEstadoClienteMongo();
     //agrego cache
     return data;
 
