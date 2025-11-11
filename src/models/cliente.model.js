@@ -1,6 +1,6 @@
 // src/models/cliente.model.js
 const mongoose = require('mongoose');
-const vehiculoModel = require('./vehiculo.model');
+const { schema: VehiculoSchema } = require('./vehiculo.model');
 
 const DomicilioSchema = new mongoose.Schema({
     direccion: { type: String, required: true },
@@ -44,10 +44,7 @@ const ClienteSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
-    vehiculos: [{
-        type: vehiculoModel,
-        ref: 'Vehiculo',
-    }],
+    vehiculos: [VehiculoSchema],
 
 }, { timestamps: true });
 
