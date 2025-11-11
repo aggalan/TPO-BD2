@@ -75,7 +75,119 @@ const clientesActivosConPolizasVigentes = async () => {
     return getOrSetCache(CACHE_CLIENTES_ACTIVOS, 60, () => resultFunction);
 
 }
+const clientesSinPolizasActivas = async () => {
+    return Cliente.aggregate([
+        {
+            $lookup: {
+                from: 'polizas',
+                let: { clienteId: '$id_cliente' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ['$id_cliente', '$$clienteId'] },
+                                    { $eq: ['$estado', 'activa'] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: 'polizas_activas'
+            }
+        },
+        {
+            $match: {
+                polizas_activas: { $size: 0 }
+            }
+        },
+        {
+            $project: {
+                polizas_activas: 0
+            }
+        }
+    ]);
+};
 
+const top10ClientesPorCobertura = async () => {
+    return Cliente.aggregate([
+        {
+            $lookup: {
+                from: 'polizas',
+                localField: 'id_cliente',
+                foreignField: 'id_cliente',
+                as: 'poliza'
+            }
+        },
+        {
+            $unwind: '$poliza'
+        },
+        {
+            $sort: {
+                'poliza.monto_cobertura': -1
+            }
+        },
+        {
+            $limit: 10
+        },
+        {
+            $project: {
+                _id: 0,
+                id_cliente: 1,
+                nombre: 1,
+                apellido: 1,
+                cobertura_total: '$poliza.monto_cobertura',
+                nro_poliza: '$poliza.nro_poliza'
+            }
+        }
+    ]);
+};
+const clientesConMultiplesVehiculos = async () => {
+    return Cliente.find({
+        'vehiculos.1': { $exists: true }
+    }).lean();
+};
+
+const vehiculosAseguradosConClienteYPoliza = async () => {
+    return Cliente.aggregate([
+        {
+            $match: {
+                'vehiculos.0': { $exists: true }
+            }
+        },
+        {
+            $unwind: '$vehiculos'
+        },
+        {
+            $lookup: {
+                from: 'polizas',
+                localField: 'id_cliente',
+                foreignField: 'id_cliente',
+                as: 'poliza'
+            }
+        },
+        {
+            $unwind: '$poliza'
+        },
+        {
+            $project: {
+                _id: 0,
+                // Datos del vehículo
+                patente: '$vehiculos.patente',
+                marca: '$vehiculos.marca',
+                modelo: '$vehiculos.modelo',
+                // Datos del cliente
+                cliente_nombre: '$nombre',
+                cliente_apellido: '$apellido',
+                cliente_id: '$id_cliente',
+                // Datos de la póliza
+                nro_poliza: '$poliza.nro_poliza',
+                poliza_tipo: '$poliza.tipo',
+                poliza_estado: '$poliza.estado'
+            }
+        }
+    ]);
+};
 
 module.exports = {
     createCliente,
@@ -83,5 +195,9 @@ module.exports = {
     deleteCliente,
     getClienteById,
     getActiveClienteById,
-    clientesActivosConPolizasVigentes
+    clientesActivosConPolizasVigentes,
+    clientesSinPolizasActivas,
+    top10ClientesPorCobertura,
+    clientesConMultiplesVehiculos,
+    vehiculosAseguradosConClienteYPoliza,
 };
