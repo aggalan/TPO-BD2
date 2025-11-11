@@ -1,17 +1,21 @@
 import { createError,parseDate,normalizePolizaEstado } from '../utils/utils.js';
+
 const {
     createPoliza: createPolizaMongo,
-    getActiveClienteById,
-    getActiveAgenteById,
-} = require('../repositories/mongo/siniestro.repository.js');
+    polizasVencidasPorCliente: polizasVencidasConCliente,
+    polizasActivasOrdenads: polizasActivasOrdenadas,
+    polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoCliente
+
+
+} = require('../repositories/mongo/poliza.repository.js');
+
 const {
-    invalidateCache,
-    updateCoberturaRanking,
-    incrementAgentPolizasMetric,
-} = require('../repositories/redis/cache.repository.js');
+    activeClientById:getActiveClienteById
+} = require('../repositories/mongo/cliente.repository.js');
 
-
-
+const {
+    activeAgenteById:getAgenteById
+} = require('../repositories/mongo/cliente.repository.js');
 
 
 
@@ -24,11 +28,14 @@ async function createPoliza(polizaData) {
         fecha_vencimiento,
         estado
     } = polizaData;
-    const cliente = await getActiveClienteById(id_cliente);
+    const cliente = await activeClienteById(id_cliente);
+    //TODO:cacheo esot??
     if (!cliente) {
         throw new Error(`Cliente no encontrado o inactivo (ID: ${id_cliente})`);
     }
-    const agente = await getActiveAgenteById(id_agente);
+    const agente = await activeAgenteById(id_agente);
+    //TODO:cacheo esot??
+
     if (!agente) {
         throw new Error(`Agente no encontrado o inactivo (ID: ${id_agente})`);
     }
@@ -44,10 +51,37 @@ async function createPoliza(polizaData) {
         }
     }
     const newPoliza = await createPolizaMongo(polizaData);
-    //invalidar QUERY 1-3-4-5-6-7-9-10
+    //TODO:invalidar QUERY 1-3-4-5-6-7-9-10
     return newPoliza;
 }
 
+async function PolizasVencidasConCliente(){
+    //TODO:consulto cache
+    const data = await polizasVencidasConCliente();
+    //TODO:agrego cache
+    return data;
+}
+
+async function polizasActivasOrdenadas(){
+    //TODO:consulto cache
+    const data = await polizasActivasOrdenadas();
+    //TODO:agrego cache
+    return data;
+}
+
+async function polizasSuspendidasConEstadoCliente(){
+    //consulto cache
+    const data = await polizasVencidasConCliente();
+    //agrego cache
+    return data;
+
+
+}
+
+
 export {
     createPoliza,
+    polizasVencidasConCliente,
+    polizasActivasOrdenadas,
+    polizasSuspendidasConEstadoCliente,
 }
