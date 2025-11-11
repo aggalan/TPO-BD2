@@ -58,7 +58,7 @@ const clientesConMultiplesVehiculos = async (req, res, next) => {
 }
 const topClientesPorCobertura = async (req, res, next) => {
     try {
-        const clientes = await clienteService.topClientesPorCobertura();
+        const clientes = await clienteService.top10ClientesPorCobertura();
         res.status(200).json(clientes);
     }
     catch (error) {
