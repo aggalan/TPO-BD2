@@ -8,13 +8,13 @@ const {
     top10ClientesPorCobertura: top10ClientesPorCoberturaMongo,
     clientesConMultiplesVehiculos: clientesConMultiplesVehiculosMongo,
     vehiculosAseguradosConClienteYPoliza: vehiculosAseguradosConClienteYPolizaMongo,
-} = require('../repository/mongo/cliente.repository.js');
+} = require('../repositories/mongo/cliente.repository.js');
 
 
 const {
     invalidateMultiple,
     getOrSetCache,
-} = require('../repository/redis/cache.repository');
+} = require('../repositories/redis/cache.repository');
 
 const {
     CACHE_CLIENTES_ACTIVOS,           // Q1
@@ -22,7 +22,7 @@ const {
     CACHE_TOP_10_CLIENTES,            // Q7
     CACHE_CLIENTES_MULTI_VEHICULO,    // Q11
     CACHE_VEHICULOS_ASEGURADOS,       // Q3
-} = require("../repository/redis/cache.keys");
+} = require("../repositories/redis/cache.keys");
 
 
 
