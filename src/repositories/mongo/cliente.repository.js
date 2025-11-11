@@ -38,12 +38,12 @@ const getActiveClienteById= async(idCliente) => {
 }
 
 const clientesActivosConPolizasVigentes = async () => {
-    const resultFunction =  Cliente.aggregate([
-        { $match: { estado_activo: true } },
+    return Cliente.aggregate([
+        {$match: {estado_activo: true}},
         {
             $lookup: {
                 from: 'polizas',
-                let: { clienteId: '$id_cliente' },
+                let: {clienteId: '$id_cliente'},
                 pipeline: [
                     {
                         $match: {
@@ -70,10 +70,6 @@ const clientesActivosConPolizasVigentes = async () => {
             },
         },
     ]);
-
-
-    return getOrSetCache(CACHE_CLIENTES_ACTIVOS, 60, () => resultFunction);
-
 }
 const clientesSinPolizasActivas = async () => {
     return Cliente.aggregate([
