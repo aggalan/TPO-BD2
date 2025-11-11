@@ -9,7 +9,7 @@ const { connectAll, redisClient } = require('../config/db');
 const {
   resetAgentPolizaMetrics,
   resetAgentSiniestroMetrics,
-} = require('../src/repository/redis/cache.repository');
+} = require('../repositories/redis/cache.repository');
 const Cliente = require('../models/cliente.model');
 const Poliza = require('../models/poliza.model');
 const Siniestro = require('../models/siniestro.model');
@@ -74,9 +74,13 @@ const normalizePolizaEstado = (estado) => {
 const normalizeSiniestroEstado = (estado) => {
   if (!estado) return 'abierto';
   const standardized = estado.toString().trim().toLowerCase();
+
   if (standardized.startsWith('abierto')) return 'abierto';
-  if (standardized.startsWith('cerrado')) return 'cerrado';
-  if (standardized.includes('evalu')) return 'en_evaluacion';
+  if (standardized.includes('evalu') || standardized.includes('proceso')) return 'en_proceso';
+  if (standardized.includes('rechaz')) return 'cerrado_rechazado';
+  if (standardized.includes('pag')) return 'cerrado_pagado';
+  if (standardized.startsWith('cerrado')) return 'cerrado_pagado';
+
   return 'abierto';
 };
 
@@ -93,7 +97,7 @@ const loadDatasets = () => {
       ciudad: row.ciudad,
       provincia: row.provincia,
     },
-    activo: parseBoolean(row.activo),
+    estado_activo: parseBoolean(row.activo),
   }));
 
   const polizas = readCsv('polizas.csv').map((row) => ({
@@ -102,9 +106,9 @@ const loadDatasets = () => {
     id_agente: parseNumber(row.id_agente),
     tipo: row.tipo,
     fecha_inicio: parseDate(row.fecha_inicio),
-    fecha_fin: parseDate(row.fecha_fin),
-    prima_mensual: parseNumber(row.prima_mensual),
-    cobertura_total: parseNumber(row.cobertura_total),
+    fecha_vencimiento: parseDate(row.fecha_fin),
+    monto_prima: parseNumber(row.prima_mensual),
+    monto_cobertura: parseNumber(row.cobertura_total),
     estado: normalizePolizaEstado(row.estado),
   }));
 
@@ -115,7 +119,7 @@ const loadDatasets = () => {
     nro_poliza: row.nro_poliza,
     fecha: parseDate(row.fecha),
     tipo: row.tipo,
-    monto_estimado: parseNumber(row.monto_estimado),
+    monto: parseNumber(row.monto_estimado),
     descripcion: row.descripcion,
     estado: normalizeSiniestroEstado(row.estado),
   }));
@@ -209,8 +213,8 @@ const seedRedis = async ({ polizasWithAgent, siniestros }) => {
   await redisClient.flushDb();
 
   const coberturaPorCliente = polizasWithAgent.reduce((acc, poliza) => {
-    if (!poliza.cobertura_total) return acc;
-    acc[poliza.id_cliente] = (acc[poliza.id_cliente] ?? 0) + poliza.cobertura_total;
+    if (!poliza.monto_cobertura) return acc;
+    acc[poliza.id_cliente] = (acc[poliza.id_cliente] ?? 0) + poliza.monto_cobertura;
     return acc;
   }, {});
 
