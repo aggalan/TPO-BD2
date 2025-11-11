@@ -2,13 +2,11 @@ import { createError,normalizeSiniestroEstado,parseDate } from '../utils/utils.j
 import {get} from "mongoose";
 const {
     createSiniestro: createSiniestroMongo,
-    getActivePolizaById,
-    getActiveClienteById,
+    getSiniestrosAbiertosConCliente: getSiniestrosAbiertosConClienteMongo,
+    getSiniestrosAccidenteUltimoAnio: getSiniestrosAccidenteUltimoAnioMongo,
 } = require('../repositories/mongo/siniestro.repository.js');
 
-const {
-    invalidateCache,
-} = require('../repositories/redis/cache.repository.js');
+
 
 
 async function createSiniestro(siniestroData) {
@@ -57,7 +55,17 @@ async function createSiniestro(siniestroData) {
     return newSiniestro;
 }
 
+async function siniestrosAbiertosConCliente() {
+    return await getSiniestrosAbiertosConClienteMongo();
+}
 
-export {
-    createSiniestro
+async function siniestrosAccidenteUltimoAnio() {
+    return await  getSiniestrosAccidenteUltimoAnioMongo();
+}
+
+
+module.exports = {
+    createSiniestro,
+    siniestrosAbiertosConCliente,
+    siniestrosAccidenteUltimoAnio
 }
