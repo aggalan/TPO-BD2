@@ -27,4 +27,52 @@ const deleteCliente = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+const clientesActivosConPolizasVigentes = async (req, res, next) => {
+    try {
+        const clientes = await clienteService.clientesActivosConPolizasVigentes();
+        res.status(200).json(clientes);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const clientesSinPolizasActivas = async (req, res, next) => {
+    try {
+        const clientes = await clienteService.clientesSinPolizasActivas();
+        res.status(200).json(clientes);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+
+const clientesConMultiplesVehiculos = async (req, res, next) => {
+    try {
+        const clientes = await clienteService.clientesConMultiplesVehiculos();
+        res.status(200).json(clientes);
+    }
+    catch (error) {
+        next(error);
+    }
+}
+const topClientesPorCobertura = async (req, res, next) => {
+    try {
+        const clientes = await clienteService.topClientesPorCobertura();
+        res.status(200).json(clientes);
+    }
+    catch (error) {
+        next(error);
+    }
+}
+
+
+module.exports = {
+    createCliente,
+    updateCliente,
+    deleteCliente,
+    clientesActivosConPolizasVigentes,
+    clientesSinPolizasActivas,
+    clientesConMultiplesVehiculos,
+    topClientesPorCobertura
 }

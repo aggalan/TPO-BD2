@@ -5,7 +5,7 @@ const {
     getClienteById: getClienteByIdMongo,
     getActiveClienteById,
     getPolizasByCliente,
-} = require('../repository/mongo/crud.repository.js');
+} = require('../repository/mongo/siniestro.repository.js');
 
 const {
     invalidateCache,
@@ -13,7 +13,7 @@ const {
 } = require('../repository/cache.repository');
 const {CACHE_CLIENTES_ACTIVOS, CACHE_CLIENTES_SIN_POLIZAS, CACHE_SINIESTROS_ABIERTOS,
     CACHE_VEHICULOS_ASEGURADOS
-} = require("../repositories/cache.keys");
+} = require("../repositories/redis/cache.keys");
 
 async function createCliente(clienteData) {
     const newCliente = await createClienteMongo(clienteData);
@@ -61,9 +61,16 @@ async function getActiveClienteById(id_cliente) {
     return await getActiveClienteById(id_cliente);
 }
 
+async function clientesActivosConPolizasVigentes(id_cliente) {
+    return await clientesActivosConPolizasVigentes(id_cliente);
+}
+
 
 module.exports = {
     createCliente,
     updateCliente,
     deleteCliente,
+    getClienteById,
+    getActiveClienteById,
+    clientesActivosConPolizasVigentes
 }

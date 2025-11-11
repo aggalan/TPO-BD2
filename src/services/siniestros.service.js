@@ -4,11 +4,11 @@ const {
     createSiniestro: createSiniestroMongo,
     getActivePolizaById,
     getActiveClienteById,
-} = require('../repositories/crud.repository.js');
+} = require('../repositories/mongo/siniestro.repository.js');
 
 const {
     invalidateCache,
-} = require('../repositories/cache.respository.js');
+} = require('../repositories/redis/cache.repository.js');
 
 
 async function createSiniestro(siniestroData) {

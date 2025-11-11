@@ -3,12 +3,12 @@ const {
     createPoliza: createPolizaMongo,
     getActiveClienteById,
     getActiveAgenteById,
-} = require('../repositories/crud.repository.js');
+} = require('../repositories/mongo/siniestro.repository.js');
 const {
     invalidateCache,
     updateCoberturaRanking,
     incrementAgentPolizasMetric,
-} = require('../repositories/cache.respository.js');
+} = require('../repositories/redis/cache.repository.js');
 
 
 
