@@ -1,85 +1,107 @@
-import { createError,parseDate,normalizePolizaEstado } from '../utils/utils.js';
-
 const {
-    createPoliza: createPolizaMongo,
-    polizasVencidasPorCliente: polizasVencidasConCliente,
-    polizasActivasOrdenads: polizasActivasOrdenadasMongo,
-    polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoClienteMongo
-} = require('../repositories/mongo/poliza.repository.js');
-
+    parseDate,
+    normalizePolizaEstado,
+} = require('../utils/utils');
 const {
-    activeClientById:getActiveClienteById
-} = require('../repositories/mongo/cliente.repository.js');
-
+    createPolizaMongo,
+    polizasVencidasConCliente: polizasVencidasConClienteMongo,
+    polizasActivasOrdenadas: polizasActivasOrdenadasMongo,
+    polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoClienteMongo,
+} = require('../repositories/mongo/poliza.repository');
 const {
-    activeAgenteById:getAgenteById
-} = require('../repositories/mongo/cliente.repository.js');
-
-
+    getActiveClienteById,
+} = require('../repositories/mongo/cliente.repository');
+const {
+    getActiveAgenteById,
+} = require('../repositories/mongo/agente.respository');
+const {
+    getOrSetCache,
+    invalidateMultiple,
+} = require('../repositories/redis/cache.repository');
+const {
+    CACHE_CLIENTES_ACTIVOS,
+    CACHE_CLIENTES_SIN_POLIZAS,
+    CACHE_TOP_10_CLIENTES,
+    CACHE_VEHICULOS_ASEGURADOS,
+    CACHE_POLIZAS_VENCIDAS,
+    CACHE_POLIZAS_ACTIVAS_ORDENADAS,
+    CACHE_POLIZAS_SUSPENDIDAS,
+} = require('../repositories/redis/cache.keys');
 
 async function createPoliza(polizaData) {
-
     const {
         id_cliente,
         id_agente,
         fecha_inicio,
         fecha_vencimiento,
-        estado
+        estado,
     } = polizaData;
-    const cliente = await activeClienteById(id_cliente);
-    //TODO:cacheo esot??
+
+    const cliente = await getActiveClienteById(id_cliente);
     if (!cliente) {
         throw new Error(`Cliente no encontrado o inactivo (ID: ${id_cliente})`);
     }
-    const agente = await activeAgenteById(id_agente);
-    //TODO:cacheo esot??
 
+    const agente = await getActiveAgenteById(id_agente);
     if (!agente) {
         throw new Error(`Agente no encontrado o inactivo (ID: ${id_agente})`);
     }
+
     const cleanedData = {
         ...polizaData,
         fecha_inicio: parseDate(fecha_inicio),
         fecha_vencimiento: parseDate(fecha_vencimiento),
         estado: normalizePolizaEstado(estado),
     };
+
     if (cleanedData.fecha_inicio && cleanedData.fecha_vencimiento) {
         if (cleanedData.fecha_inicio > cleanedData.fecha_vencimiento) {
             throw new Error('La fecha de inicio no puede ser posterior a la fecha de vencimiento');
         }
     }
-    const newPoliza = await createPolizaMongo(polizaData);
-    //TODO:invalidar QUERY 1-3-4-5-6-7-9-10
+
+    const newPoliza = await createPolizaMongo(cleanedData);
+
+    await invalidateMultiple([
+        CACHE_CLIENTES_ACTIVOS,
+        CACHE_CLIENTES_SIN_POLIZAS,
+        CACHE_TOP_10_CLIENTES,
+        CACHE_VEHICULOS_ASEGURADOS,
+        CACHE_POLIZAS_VENCIDAS,
+        CACHE_POLIZAS_ACTIVAS_ORDENADAS,
+        CACHE_POLIZAS_SUSPENDIDAS,
+    ]);
+
     return newPoliza;
 }
 
-async function PolizasVencidasConCliente(){
-    //TODO:consulto cache
-    const data = await polizasVencidasConCliente();
-    //TODO:agrego cache
-    return data;
+async function polizasVencidasConCliente() {
+    return getOrSetCache(
+        CACHE_POLIZAS_VENCIDAS,
+        900, // 15 minutos
+        polizasVencidasConClienteMongo,
+    );
 }
 
-async function polizasActivasOrdenadas(){
-    //TODO:consulto cache
-    const data = await polizasActivasOrdenadasMongo();
-    //TODO:agrego cache
-    return data;
+async function polizasActivasOrdenadas() {
+    return getOrSetCache(
+        CACHE_POLIZAS_ACTIVAS_ORDENADAS,
+        300, // 5 minutos
+        polizasActivasOrdenadasMongo,
+    );
 }
 
-async function polizasSuspendidasConEstadoCliente(){
-    //consulto cache
-    const data = await polizasSuspendidasConEstadoClienteMongo();
-    //agrego cache
-    return data;
-
-
+async function polizasSuspendidasConEstadoCliente() {
+    return getOrSetCache(
+        CACHE_POLIZAS_SUSPENDIDAS,
+        600, // 10 minutos
+        polizasSuspendidasConEstadoClienteMongo,
+    );
 }
 
-
-export {
+module.exports = {
     createPoliza,
     polizasVencidasConCliente,
     polizasActivasOrdenadas,
     polizasSuspendidasConEstadoCliente,
-}
+};
