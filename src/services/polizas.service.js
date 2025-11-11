@@ -13,7 +13,7 @@ const {
 } = require('../repositories/mongo/cliente.repository');
 const {
     getActiveAgenteById,
-} = require('../repositories/mongo/agente.respository');
+} = require('../repositories/mongo/agente.repository');
 const {
     getOrSetCache,
     invalidateMultiple,
@@ -26,6 +26,7 @@ const {
     CACHE_POLIZAS_VENCIDAS,
     CACHE_POLIZAS_ACTIVAS_ORDENADAS,
     CACHE_POLIZAS_SUSPENDIDAS,
+    CACHE_AGENTES_POLIZAS,
 } = require('../repositories/redis/cache.keys');
 
 async function createPoliza(polizaData) {
@@ -70,6 +71,7 @@ async function createPoliza(polizaData) {
         CACHE_POLIZAS_VENCIDAS,
         CACHE_POLIZAS_ACTIVAS_ORDENADAS,
         CACHE_POLIZAS_SUSPENDIDAS,
+        CACHE_AGENTES_POLIZAS,
     ]);
 
     return newPoliza;

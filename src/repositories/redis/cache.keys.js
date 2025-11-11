@@ -9,4 +9,6 @@ module.exports = {
     CACHE_POLIZAS_VENCIDAS: "polizas:vencidas-con-cliente",
     CACHE_POLIZAS_ACTIVAS_ORDENADAS: "polizas:activas-ordenadas",
     CACHE_POLIZAS_SUSPENDIDAS: "polizas:suspendidas-cliente",
+    CACHE_AGENTES_POLIZAS: "agentes:activos-polizas",
+    CACHE_AGENTES_SINIESTROS: "agentes:cantidad-siniestros",
 };

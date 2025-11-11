@@ -20,6 +20,7 @@ const {
 const {
     CACHE_SINIESTROS_ABIERTOS,
     CACHE_SINIESTROS_ACCIDENTES_ANIO,
+    CACHE_AGENTES_SINIESTROS,
 } = require('../repositories/redis/cache.keys');
 
 async function createSiniestro(siniestroData) {
@@ -59,6 +60,7 @@ async function createSiniestro(siniestroData) {
     await invalidateMultiple([
         CACHE_SINIESTROS_ABIERTOS,
         CACHE_SINIESTROS_ACCIDENTES_ANIO,
+        CACHE_AGENTES_SINIESTROS,
     ]);
 
     return newSiniestro;
