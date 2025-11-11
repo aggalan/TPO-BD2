@@ -1,14 +1,63 @@
+import { createError,normalizeSiniestroEstado,parseDate } from '../utils/utils.js';
+import {get} from "mongoose";
 const {
     createSiniestro: createSiniestroMongo,
-} = require('../repository/mongo/crud.repository.js');
+    getActivePolizaById,
+    getActiveClienteById,
+} = require('../repositories/crud.repository.js');
 
 const {
     invalidateCache,
-} = require('../repository/redis/cache.repository');
+} = require('../repositories/cache.respository.js');
 
 
 async function createSiniestro(siniestroData) {
-   //TODO: check de cliente y poliza existents
-    const newSiniestro = await createSiniestroMongo(siniestroData);
+    const {
+        nro_poliza,
+        fecha,
+        estado
+    } = siniestroData;
+
+    const fechaSiniestro = parseDate(fecha);
+    if (!fechaSiniestro) {
+        throw new Error('La fecha del siniestro es inválida o nula.');
+    }
+    const cleanedData = {
+        ...siniestroData,
+        fecha: fechaSiniestro,
+        estado: normalizeSiniestroEstado(estado),
+    };
+    const polizaActiva = await getActivePolizaById(nro_poliza);
+    if (!polizaActiva) {
+        throw new Error(`Póliza no encontrada, vencida o suspendida (Nro: ${nro_poliza})`);
+    }
+    const clienteActivo= await getActiveClienteById(polizaActiva.id_cliente);
+    if (!clienteActivo) {
+        throw new Error(`Cliente asociado a la póliza no encontrado o inactivo (ID: ${polizaActiva.id_cliente})`);
+    }
+    if (fechaSiniestro < polizaActiva.fecha_inicio || fechaSiniestro > polizaActiva.fecha_vencimiento) {  //TODO CHECK THIS
+        throw new Error(`El siniestro (Fecha: ${fechaSiniestro.toISOString()}) está fuera del período de cobertura de la póliza (Inicio: ${polizaActiva.fecha_inicio.toISOString()}, Fin: ${polizaActiva.fecha_vencimiento.toISOString()}).`);
+    }
+
+
+    const newSiniestro = await createSiniestroMongo(cleanedData);
+
+    //
+    /*
+    *  Query 12 incrementar el contador de siniestros del agente.
+    *
+    *
+    *  Query 2  INVALIDAR la lista cachead de "siniestros abiertos".
+    *
+    *
+    *  Query 8 INVALIDAR la lista cacheada de "siniestros por accidente del último año".
+    *
+    */
+
     return newSiniestro;
+}
+
+
+export {
+    createSiniestro
 }
