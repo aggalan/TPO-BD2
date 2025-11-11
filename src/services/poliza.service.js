@@ -9,19 +9,7 @@ const {
   updateCoberturaRanking,
   incrementAgentPolizasMetric,
 } = require('../repository/redis/cache.repository');
-
-const POLIZA_CACHE_KEYS = [
-  'clientes_activos_polizas_vigentes',
-  'clientes_sin_polizas_activas',
-  'polizas_vencidas_cliente',
-  'polizas_suspendidas_cliente',
-  'polizas_activas_ordenadas',
-  'vehiculos_asegurados',
-  'siniestros_abiertos',
-  'siniestros_accidente_recientes',
-  'agentes_activos_polizas',
-  'agentes_siniestros',
-];
+const { POLIZA_CACHE_KEYS } = require('../constants/cacheKeys');
 
 const normalizePolizaEstado = (estado) => {
   if (!estado) return 'activa';

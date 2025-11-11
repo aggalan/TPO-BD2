@@ -11,20 +11,7 @@ const {
 const {
   getClientesByIds,
 } = require('../repository/mongo/crud.repository');
-
-const CACHE_KEYS = {
-  clientesActivosPolizasVigentes: 'clientes_activos_polizas_vigentes',
-  vehiculosAsegurados: 'vehiculos_asegurados',
-  clientesSinPolizasActivas: 'clientes_sin_polizas_activas',
-  agentesActivosPolizas: 'agentes_activos_polizas',
-  polizasVencidasCliente: 'polizas_vencidas_cliente',
-  polizasActivasOrdenadas: 'polizas_activas_ordenadas',
-  polizasSuspendidasCliente: 'polizas_suspendidas_cliente',
-  clientesMultiplesVehiculos: 'clientes_multiples_vehiculos',
-  siniestrosAbiertos: 'siniestros_abiertos',
-  siniestrosAccidenteRecientes: 'siniestros_accidente_recientes',
-  agentesSiniestros: 'agentes_siniestros',
-};
+const { CACHE_KEYS } = require('../constants/cacheKeys');
 
 const getClientesActivosConPolizasVigentes = async () => {
   const cacheKey = CACHE_KEYS.clientesActivosPolizasVigentes;

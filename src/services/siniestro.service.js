@@ -7,12 +7,7 @@ const {
   invalidateCache,
   incrementAgentSiniestrosMetric,
 } = require('../repository/redis/cache.repository');
-
-const SINIESTRO_CACHE_KEYS = [
-  'siniestros_abiertos',
-  'siniestros_accidente_recientes',
-  'agentes_siniestros',
-];
+const { SINIESTRO_CACHE_KEYS } = require('../constants/cacheKeys');
 
 const createError = (message, statusCode = 400) => {
   const error = new Error(message);
