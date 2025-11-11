@@ -3,6 +3,7 @@ const createError = (message, statusCode = 400) => {
     error.statusCode = statusCode;
     return error;
 };
+
 const parseDate = (value) => {
     if (!value) return null;
     const parsed = new Date(value);
@@ -28,6 +29,7 @@ const normalizePolizaEstado = (estado) => {
             return 'activa';
     }
 };
+
 const normalizeSiniestroEstado = (estado) => {
     if (!estado) return 'abierto';
     const normalized = estado.toString().trim().toLowerCase();
@@ -37,10 +39,9 @@ const normalizeSiniestroEstado = (estado) => {
     return 'abierto';
 };
 
-export {
+module.exports = {
     createError,
     parseDate,
     normalizePolizaEstado,
-    normalizeSiniestroEstado
-
+    normalizeSiniestroEstado,
 };

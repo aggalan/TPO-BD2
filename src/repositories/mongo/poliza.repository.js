@@ -115,11 +115,17 @@ async function polizasSuspendidasConEstadoCliente() {
     }
 }
 
+async function getActivePolizaById(nroPoliza) {
+    return Poliza.findOne({
+        nro_poliza: nroPoliza,
+        estado: 'activa',
+    }).lean();
+}
 
 module.exports = {
     createPolizaMongo,
     polizasVencidasConCliente,
     polizasActivasOrdenadas,
-    polizasSuspendidasConEstadoCliente
-
-}
+    polizasSuspendidasConEstadoCliente,
+    getActivePolizaById,
+};
