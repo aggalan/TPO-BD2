@@ -2,8 +2,8 @@ import { createError,normalizeSiniestroEstado,parseDate } from '../utils/utils.j
 import {get} from "mongoose";
 const {
     createSiniestro: createSiniestroMongo,
-    getSiniestrosAbiertosConCliente: getSiniestrosAbiertosConClienteMongo,
-    getSiniestrosAccidenteUltimoAnio: getSiniestrosAccidenteUltimoAnioMongo,
+    getSiniestrosAbiertosConCliente,
+    getSiniestrosAccidenteUltimoAnio,
 } = require('../repositories/mongo/siniestro.repository.js');
 
 
@@ -53,11 +53,11 @@ async function createSiniestro(siniestroData) {
 }
 
 async function siniestrosAbiertosConCliente() {
-    return await getSiniestrosAbiertosConClienteMongo();
+    return await getSiniestrosAbiertosConCliente();
 }
 
 async function siniestrosAccidenteUltimoAnio() {
-    return await  getSiniestrosAccidenteUltimoAnioMongo();
+    return await  getSiniestrosAccidenteUltimoAnio();
 }
 
 
