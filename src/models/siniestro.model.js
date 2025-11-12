@@ -11,6 +11,16 @@ const SiniestroSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    id_cliente: {
+        type: Number,
+        required: true,
+        index: true,
+    },
+    id_agente: {
+        type: Number,
+        required: false,
+        index: true,
+    },
 
     fecha: {
         type: Date,
@@ -31,7 +41,7 @@ const SiniestroSchema = new mongoose.Schema({
     estado: {
         type: String,
         required: true,
-        enum: ['abierto', 'en_proceso', 'cerrado_pagado', 'cerrado_rechazado'],
+        enum: ['abierto', 'en_proceso', 'cerrado'],
         default: 'abierto',
     }
 }, { timestamps: true });

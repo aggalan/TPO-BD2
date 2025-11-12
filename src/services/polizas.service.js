@@ -9,10 +9,10 @@ const {
     polizasSuspendidasConEstadoCliente: polizasSuspendidasConEstadoClienteMongo,
 } = require('../repositories/mongo/poliza.repository');
 const {
-    getActiveClienteById,
+    getClienteById,
 } = require('../repositories/mongo/cliente.repository');
 const {
-    getActiveAgenteById,
+     getAgenteById,
 } = require('../repositories/mongo/agente.repository');
 const {
     getOrSetCache,
@@ -38,14 +38,14 @@ async function createPoliza(polizaData) {
         estado,
     } = polizaData;
 
-    const cliente = await getActiveClienteById(id_cliente);
+    const cliente = await getClienteById(id_cliente);
     if (!cliente) {
-        throw new Error(`Cliente no encontrado o inactivo (ID: ${id_cliente})`);
+        throw new Error(`Cliente no encontrado(ID: ${id_cliente})`);
     }
 
-    const agente = await getActiveAgenteById(id_agente);
+    const agente = await getAgenteById(id_agente);
     if (!agente) {
-        throw new Error(`Agente no encontrado o inactivo (ID: ${id_agente})`);
+        throw new Error(`Agente no encontrado (ID: ${id_agente})`);
     }
 
     const cleanedData = {

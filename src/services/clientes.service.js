@@ -2,7 +2,6 @@ const {
     createCliente: createClienteMongo,
     updateCliente: updateClienteMongo,
     getClienteById: getClienteByIdMongo,
-    getActiveClienteById: getActiveClienteByIdMongo,
     clientesActivosConPolizasVigentes: clientesActivosConPolizasVigentesMongo,
     clientesSinPolizasActivas: clientesSinPolizasActivasMongo,
     top10ClientesPorCobertura: top10ClientesPorCoberturaMongo,
@@ -98,9 +97,6 @@ async function getClienteById(id_cliente) {
 }
 
 
-async function getActiveClienteById(id_cliente) {
-    return await getActiveClienteByIdMongo(id_cliente);
-}
 
 
 async function clientesActivosConPolizasVigentes() {
@@ -154,7 +150,6 @@ module.exports = {
     updateCliente,
     deleteCliente,
     getClienteById,
-    getActiveClienteById,
     // Queries con Caché
     clientesActivosConPolizasVigentes,       // Q1
     vehiculosAseguradosConClienteYPoliza, // Q3

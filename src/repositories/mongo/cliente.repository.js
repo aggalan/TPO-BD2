@@ -1,7 +1,5 @@
 const Cliente = require('../../models/cliente.model');
 const Vehiculo = require('../../models/vehiculo.model');
-const {getOrSetCache} = require("../redis/cache.repository");
-const {CACHE_CLIENTES_ACTIVOS} = require("../redis/cache.keys");
 
 const getNextSequentialId = async (Model, fieldName) => {
     const last = await Model.findOne({}, { [fieldName]: 1 }).sort({ [fieldName]: -1 }).lean();
@@ -32,9 +30,6 @@ const deleteCliente = async (idCliente) => {
 
 const getClienteById = async(idCliente) => {
     return Cliente.findOne({ id_cliente: idCliente }).lean();
-}
-const getActiveClienteById= async(idCliente) => {
-    return Cliente.findOne({ id_cliente: idCliente, estado_activo: true }).lean();
 }
 
 const clientesActivosConPolizasVigentes = async () => {
@@ -189,7 +184,6 @@ module.exports = {
     updateCliente,
     deleteCliente,
     getClienteById,
-    getActiveClienteById,
     clientesActivosConPolizasVigentes,
     clientesSinPolizasActivas,
     top10ClientesPorCobertura,

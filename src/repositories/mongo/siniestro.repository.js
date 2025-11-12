@@ -16,7 +16,27 @@
     async function getSiniestrosAbiertosConCliente() {
         return Siniestro.aggregate([
             { $match: { estado: 'abierto' } },
-
+            {
+                $lookup: {
+                    from: 'clientes',
+                    localField: 'id_cliente',
+                    foreignField: 'id_cliente',
+                    as: 'cliente',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 0,
+                                id_cliente: 1,
+                                nombre: 1,
+                                apellido: 1,
+                                email: 1,
+                                telefono: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            { $unwind: '$cliente' },
             {
                 $project: {
                     _id: 0,
@@ -27,54 +47,7 @@
                     descripcion: 1,
                     monto: 1,
                     estado: 1,
-                }
-            },
-
-            {
-                $lookup: {
-                    from: 'polizas',
-                    localField: 'nro_poliza',
-                    foreignField: 'nro_poliza',
-                    as: 'poliza_info',
-                    pipeline: [
-                        { $project: { id_cliente: 1, _id: 0 } },
-                        {
-                            $lookup: {
-                                from: 'clientes',
-                                localField: 'id_cliente',
-                                foreignField: 'id_cliente',
-                                as: 'cliente_info',
-                                pipeline: [
-                                    {
-                                        $project: {
-                                            _id: 0,
-                                            id_cliente: 1,
-                                            nombre: 1,
-                                            apellido: 1,
-                                            email: 1,
-                                            telefono: 1
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        { $unwind: '$cliente_info' },
-                        { $replaceRoot: { newRoot: '$cliente_info' } }
-                    ]
-                }
-            },
-
-            { $unwind: '$poliza_info' },
-
-            {
-                $addFields: {
-                    cliente: '$poliza_info'
-                }
-            },
-
-            {
-                $project: {
-                    poliza_info: 0
+                    cliente: 1
                 }
             }
         ]);

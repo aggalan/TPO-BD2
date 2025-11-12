@@ -5,7 +5,8 @@ const path = require('path');
 
 const mongoose = require('mongoose');
 
-const { connectAll, redisClient,connectMongo } = require('../config/db');
+const { connectMongo } = require('../config/db');
+const {persistSiniestro} = require('../services/siniestros.service');
 const Cliente = require('../models/cliente.model');
 const Poliza = require('../models/poliza.model');
 const Siniestro = require('../models/siniestro.model');
@@ -200,7 +201,10 @@ const seedMongo = async ({ clientes, polizas, siniestros, vehiculos, agentes }) 
   await Cliente.insertMany(clientesEmbebidos);
   await Agente.insertMany(agentes);
   await Poliza.insertMany(polizas);
-  await Siniestro.insertMany(siniestros);
+  for (const siniestroData of siniestros) {
+    await persistSiniestro(siniestroData);
+  }
+
 };
 
 

@@ -7,11 +7,9 @@ const {
     getSiniestrosAbiertosConCliente: getSiniestrosAbiertosConClienteMongo,
     getSiniestrosAccidenteUltimoAnio: getSiniestrosAccidenteUltimoAnioMongo,
 } = require('../repositories/mongo/siniestro.repository');
+
 const {
-    getActiveClienteById,
-} = require('../repositories/mongo/cliente.repository');
-const {
-    getActivePolizaById,
+    getPolizaById,
 } = require('../repositories/mongo/poliza.repository');
 const {
     getOrSetCache,
@@ -22,8 +20,10 @@ const {
     CACHE_SINIESTROS_ACCIDENTES_ANIO,
     CACHE_AGENTES_SINIESTROS,
 } = require('../repositories/redis/cache.keys');
+const {getClienteById} = require("./clientes.service");
+const { getAgenteById} = require("../repositories/mongo/agente.repository");
 
-async function createSiniestro(siniestroData) {
+async function persistSiniestro(siniestroData) {
     const {
         nro_poliza,
         fecha,
@@ -36,29 +36,33 @@ async function createSiniestro(siniestroData) {
         throw new Error('La fecha del siniestro es inválida o nula.');
     }
 
+
+    const polizaActiva = await getPolizaById(nro_poliza);
+    if (!polizaActiva) {
+        throw new Error(`Póliza no encontrada (Nro: ${nro_poliza})`);
+    }
+
+    const clienteActivo = await getClienteById(polizaActiva.id_cliente);
+    if (!clienteActivo) {
+        throw new Error(`Cliente asociado a la póliza no encontrado (ID: ${polizaActiva.id_cliente})`);
+    }
+    const agenteAsociado = await getAgenteById(polizaActiva.id_agente);
+
+
     const cleanedData = {
         ...siniestroData,
         fecha: fechaSiniestro,
         estado: normalizeSiniestroEstado(estado),
         tipo: tipo.toLowerCase(),
+        id_cliente: clienteActivo.id_cliente,
+        id_agente: agenteAsociado?.id_agente,
     };
 
-    const polizaActiva = await getActivePolizaById(nro_poliza);
-    if (!polizaActiva) {
-        throw new Error(`Póliza no encontrada, vencida o suspendida (Nro: ${nro_poliza})`);
-    }
+    return newSiniestro = await createSiniestroMongo(cleanedData);
+}
 
-    const clienteActivo = await getActiveClienteById(polizaActiva.id_cliente);
-    if (!clienteActivo) {
-        throw new Error(`Cliente asociado a la póliza no encontrado o inactivo (ID: ${polizaActiva.id_cliente})`);
-    }
-
-    if (fechaSiniestro < polizaActiva.fecha_inicio || fechaSiniestro > polizaActiva.fecha_vencimiento) {
-        throw new Error(`El siniestro (Fecha: ${fechaSiniestro.toISOString()}) está fuera del período de cobertura de la póliza (Inicio: ${polizaActiva.fecha_inicio.toISOString()}, Fin: ${polizaActiva.fecha_vencimiento.toISOString()}).`);
-    }
-
-    const newSiniestro = await createSiniestroMongo(cleanedData);
-
+async function createSiniestro(siniestroData) {
+    const newSiniestro = await persistSiniestro(siniestroData);
     await invalidateMultiple([
         CACHE_SINIESTROS_ABIERTOS,
         CACHE_SINIESTROS_ACCIDENTES_ANIO,
@@ -86,6 +90,7 @@ async function siniestrosAccidenteUltimoAnio() {
 
 module.exports = {
     createSiniestro,
+    persistSiniestro,
     siniestrosAbiertosConCliente,
     siniestrosAccidenteUltimoAnio,
 };
