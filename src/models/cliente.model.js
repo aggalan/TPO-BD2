@@ -50,7 +50,7 @@ const ClienteSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-ClienteSchema.index({ id_cliente: 1, estado_activo: 1 });
+ClienteSchema.index({  estado_activo: 1, id_cliente: 1 });
 
 
 module.exports = mongoose.model('Cliente', ClienteSchema);

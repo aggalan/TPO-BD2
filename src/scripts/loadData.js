@@ -93,7 +93,7 @@ const loadDatasets = () => {
       ciudad: row.ciudad,
       provincia: row.provincia,
     },
-    estado_activo: parseBoolean(row.activo),
+    estado_activo: parseBoolean(row.activo.toLowerCase()),
   }));
 
   const polizas = readCsv('polizas.csv').map((row) => ({
@@ -108,7 +108,6 @@ const loadDatasets = () => {
     estado: normalizePolizaEstado(row.estado),
   }));
 
-  const polizasWithAgent = polizas.filter((poliza) => poliza.id_agente !== null);
 
   const siniestros = readCsv('siniestros.csv').map((row) => ({
     id_siniestro: parseNumber(row.id_siniestro),
@@ -160,7 +159,6 @@ const loadDatasets = () => {
   return {
     clientes,
     polizas,
-    polizasWithAgent,
     siniestros,
     vehiculos,
     agentes,
@@ -176,7 +174,7 @@ const resetMongoCollections = async () => {
   ]);
 };
 
-const seedMongo = async ({ clientes, polizasWithAgent, siniestros, vehiculos, agentes }) => {
+const seedMongo = async ({ clientes, polizas, siniestros, vehiculos, agentes }) => {
   const vehiculosPorCliente = vehiculos.reduce((acc, vehiculo) => {
     if (vehiculo.id_cliente == null) return acc;
     if (!acc.has(vehiculo.id_cliente)) {
@@ -201,7 +199,7 @@ const seedMongo = async ({ clientes, polizasWithAgent, siniestros, vehiculos, ag
 
   await Cliente.insertMany(clientesEmbebidos);
   await Agente.insertMany(agentes);
-  await Poliza.insertMany(polizasWithAgent);
+  await Poliza.insertMany(polizas);
   await Siniestro.insertMany(siniestros);
 };
 

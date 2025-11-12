@@ -76,20 +76,31 @@ const clientesSinPolizasActivas = async () => {
         {
             $lookup: {
                 from: 'polizas',
-                localField: 'id_cliente',
-                foreignField: 'id_cliente',
-                as: 'polizas_vigentes'
+                let: { clienteId: '$id_cliente' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ['$id_cliente', '$$clienteId'] },
+                                    { $eq: ['$estado', 'activa'] }
+                                ]
+                            }
+                        }
+                    },
+                    { $limit: 1 }
+                ],
+                as: 'polizas_activas'
             }
         },
-        { $addFields: { polizas_vigentes: {
-                    $filter: {
-                        input: '$polizas_vigentes',
-                        as: 'poliza',
-                        cond: { $eq: ['$$poliza.estado', 'activa'] }
-                    }
-                }}}
-
+        {
+            $match: { polizas_activas: { $size: 0 } }
+        },
+        {
+            $project: { polizas_activas: 0 }
+        }
     ]);
+
 };
 
 const top10ClientesPorCobertura = async () => {
@@ -99,16 +110,16 @@ const top10ClientesPorCobertura = async () => {
                 from: 'polizas',
                 localField: 'id_cliente',
                 foreignField: 'id_cliente',
-                as: 'poliza'
+                as: 'polizas'
             }
         },
         {
-            $unwind: '$poliza'
+            $addFields: {
+                cobertura_total: { $sum: '$polizas.monto_cobertura' }
+            }
         },
         {
-            $sort: {
-                'poliza.monto_cobertura': -1
-            }
+            $sort: { cobertura_total: -1 }
         },
         {
             $limit: 10
@@ -119,12 +130,13 @@ const top10ClientesPorCobertura = async () => {
                 id_cliente: 1,
                 nombre: 1,
                 apellido: 1,
-                cobertura_total: '$poliza.monto_cobertura',
-                nro_poliza: '$poliza.nro_poliza'
+                cobertura_total: 1,
+                cantidad_polizas: { $size: '$polizas' }
             }
         }
     ]);
 };
+
 const clientesConMultiplesVehiculos = async () => {
     return Cliente.find({
         'vehiculos.1': { $exists: true }

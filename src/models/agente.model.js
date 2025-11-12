@@ -6,7 +6,6 @@ const AgenteSchema = new mongoose.Schema({
         type: Number,
         required: true,
         unique: true,
-        index: true,
     },
     nombre: {
         type: String,

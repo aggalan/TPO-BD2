@@ -15,12 +15,20 @@ async function createPolizaMongo(polizaData) {
 
 async function polizasVencidasConCliente() {
     try {
-
-        const results = await Poliza.aggregate([
+        return await Poliza.aggregate([
             {
                 $match: {
                     estado: 'vencida',
                 },
+            },
+            {
+                $project: {
+                    nro_poliza: 1,
+                    tipo: 1,
+                    estado: 1,
+                    fecha_vencimiento: 1,
+                    id_cliente: 1,
+                }
             },
             {
                 $lookup: {
@@ -28,9 +36,19 @@ async function polizasVencidasConCliente() {
                     localField: 'id_cliente',
                     foreignField: 'id_cliente',
                     as: 'cliente',
+                    pipeline: [
+                        {
+                            $project: {
+                                id_cliente: 1,
+                                nombre: 1,
+                                apellido: 1,
+                                _id: 0,
+                            }
+                        }
+                    ]
                 },
             },
-            {$unwind: '$cliente'},
+            { $unwind: '$cliente' },
             {
                 $project: {
                     _id: 0,
@@ -38,25 +56,20 @@ async function polizasVencidasConCliente() {
                     tipo: 1,
                     estado: 1,
                     fecha_vencimiento: 1,
-                    cliente: {
-                        id_cliente: '$cliente.id_cliente',
-                        nombre: '$cliente.nombre',
-                        apellido: '$cliente.apellido',
-                    },
+                    cliente: 1, // Ya viene proyectado del lookup
                 },
             },
-            {$sort: {fecha_vencimiento: -1}},
+            { $sort: { fecha_vencimiento: -1 } },
         ]);
 
-        return results;
-    }catch(error) {
-        console.error("Error en createPolizaMongo:",error);
+    } catch(error) {
+        console.error("Error en polizasVencidasConCliente:", error);
         throw error;
     }
 }
 async function polizasActivasOrdenadas() {
     try {
-        const results = await Poliza.find(
+        return await Poliza.find(
             {estado: 'activa'},
             {
                 _id: 0,
@@ -69,8 +82,7 @@ async function polizasActivasOrdenadas() {
                 id_cliente: 1,
                 id_agente: 1,
             },
-        ).sort({fecha_inicio: 1});
-        return results;
+        ).sort({fecha_inicio: 1}).lean();
     }catch(error) {
         console.error("Error en activa:",error);
         throw error;
@@ -79,7 +91,7 @@ async function polizasActivasOrdenadas() {
 
 async function polizasSuspendidasConEstadoCliente() {
     try {
-        const results = await Poliza.aggregate([
+        return await Poliza.aggregate([
             {$match: {estado: 'suspendida'}},
             {
                 $lookup: {
@@ -100,13 +112,11 @@ async function polizasSuspendidasConEstadoCliente() {
                         id_cliente: '$cliente.id_cliente',
                         nombre: '$cliente.nombre',
                         apellido: '$cliente.apellido',
-                        activo: '$cliente.activo',
+                        activo: '$cliente.estado_activo',
                     },
                 },
             },
         ]);
-
-        return results;
     }catch(error) {
         console.error("Error en activa:",error);
         throw error;

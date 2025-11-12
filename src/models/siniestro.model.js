@@ -6,24 +6,20 @@ const SiniestroSchema = new mongoose.Schema({
         type: Number,
         required: true,
         unique: true,
-        index: true,
     },
     nro_poliza: {
         type: String,
         required: true,
-        index: true,
     },
 
     fecha: {
         type: Date,
         required: true,
         default: Date.now,
-        index: true, // 🔹 Se usa para filtrar por último año
     },
     tipo: {
         type: String,
-        required: true,
-        index: true,
+        required: true, //TODO: PONEMOS ENUM DE TIPOS?
     },
     descripcion: {
         type: String,
@@ -37,12 +33,11 @@ const SiniestroSchema = new mongoose.Schema({
         required: true,
         enum: ['abierto', 'en_proceso', 'cerrado_pagado', 'cerrado_rechazado'],
         default: 'abierto',
-        index: true,
     }
 }, { timestamps: true });
 
 SiniestroSchema.index({ estado: 1, nro_poliza: 1 });          // usado en getSiniestrosAbiertosConCliente
-SiniestroSchema.index({ tipo: 1, fecha: -1 });                 // usado en getSiniestrosAccidenteUltimoAnio
+SiniestroSchema.index({ tipo: 1, fecha: 1 });                 // usado en getSiniestrosAccidenteUltimoAnio
 SiniestroSchema.index({ nro_poliza: 1, fecha: -1 });           // útil para reportes o histórico por póliza
 
 
