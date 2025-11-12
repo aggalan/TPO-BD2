@@ -63,7 +63,7 @@ async function polizasActivasOrdenadas() {
                 nro_poliza: 1,
                 tipo: 1,
                 fecha_inicio: 1,
-                fecha_fin: 1,
+                fecha_vencimiento: 1,
                 prima_mensual: 1,
                 cobertura_total: 1,
                 id_cliente: 1,
@@ -80,7 +80,7 @@ async function polizasActivasOrdenadas() {
 async function polizasSuspendidasConEstadoCliente() {
     try {
         const results = await Poliza.aggregate([
-            {$match: {estado: 'suspendidas'}},
+            {$match: {estado: 'suspendida'}},
             {
                 $lookup: {
                     from: 'clientes',
