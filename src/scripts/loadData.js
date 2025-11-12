@@ -205,58 +205,14 @@ const seedMongo = async ({ clientes, polizasWithAgent, siniestros, vehiculos, ag
   await Siniestro.insertMany(siniestros);
 };
 
-const seedRedis = async ({ polizasWithAgent, siniestros }) => {
-  await redisClient.flushDb();
-
-  const coberturaPorCliente = polizasWithAgent.reduce((acc, poliza) => {
-    if (!poliza.monto_cobertura) return acc;
-    acc[poliza.id_cliente] = (acc[poliza.id_cliente] ?? 0) + poliza.monto_cobertura;
-    return acc;
-  }, {});
-
-  const rankingEntries = Object.entries(coberturaPorCliente).map(([idCliente, cobertura]) => ({
-    score: cobertura,
-    value: `cliente:${idCliente}`,
-  }));
-
-  if (rankingEntries.length > 0) {
-    await redisClient.zAdd('ranking:cobertura_total', rankingEntries);
-  }
-
-  const polizasPorAgente = polizasWithAgent.reduce((acc, poliza) => {
-    if (!Number.isFinite(poliza.id_agente)) return acc;
-    acc[poliza.id_agente] = (acc[poliza.id_agente] ?? 0) + 1;
-    return acc;
-  }, {});
-
-
-
-  const polizaAgenteMap = new Map(
-    polizasWithAgent.map((poliza) => [poliza.nro_poliza, poliza.id_agente]),
-  );
-
-  const siniestrosPorAgente = siniestros.reduce((acc, siniestro) => {
-    const agenteId = polizaAgenteMap.get(siniestro.nro_poliza);
-    if (!Number.isFinite(agenteId)) return acc;
-    acc[agenteId] = (acc[agenteId] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  await resetAgentSiniestroMetrics(
-    Object.entries(siniestrosPorAgente).map(([idAgente, cantidad]) => ({
-      id_agente: Number(idAgente),
-      cantidad,
-    })),
-  );
-};
 
 const run = async () => {
   try {
+    await connectAll();
     const datasets = loadDatasets();
 
     await resetMongoCollections();
     await seedMongo(datasets);
-    await seedRedis(datasets);
 
     console.log('✅ Datos cargados correctamente en MongoDB y Redis');
   } catch (error) {
@@ -268,6 +224,5 @@ const run = async () => {
   }
 };
 
-module.exports = {
-  run
-}
+run();
+
