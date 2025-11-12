@@ -23,10 +23,7 @@ const connectMongo = async () => {
 
 
 const redisClient = createClient({
-  socket: {
-    host: REDIS_HOST,
-    port: REDIS_PORT,
-  }
+  url: process.env.REDIS_URL
 });
 
 redisClient.on('error', (err) => console.error('Error de Cliente Redis:', err));

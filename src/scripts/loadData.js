@@ -6,16 +6,12 @@ const path = require('path');
 const mongoose = require('mongoose');
 
 const { connectAll, redisClient } = require('../config/db');
-const {
-  resetAgentPolizaMetrics,
-  resetAgentSiniestroMetrics,
-} = require('../repositories/redis/cache.repository');
 const Cliente = require('../models/cliente.model');
 const Poliza = require('../models/poliza.model');
 const Siniestro = require('../models/siniestro.model');
 const Agente = require('../models/agente.model');
 
-const rootDir = path.join(__dirname, '..');
+const rootDir = path.join(__dirname, '..', '..');
 const datasetsDir = path.join(rootDir, 'datasets');
 
 const readCsv = (filename) => {
@@ -233,12 +229,7 @@ const seedRedis = async ({ polizasWithAgent, siniestros }) => {
     return acc;
   }, {});
 
-  await resetAgentPolizaMetrics(
-    Object.entries(polizasPorAgente).map(([idAgente, cantidad]) => ({
-      id_agente: Number(idAgente),
-      cantidad,
-    })),
-  );
+
 
   const polizaAgenteMap = new Map(
     polizasWithAgent.map((poliza) => [poliza.nro_poliza, poliza.id_agente]),
@@ -261,7 +252,6 @@ const seedRedis = async ({ polizasWithAgent, siniestros }) => {
 
 const run = async () => {
   try {
-    await connectAll();
     const datasets = loadDatasets();
 
     await resetMongoCollections();
@@ -278,4 +268,6 @@ const run = async () => {
   }
 };
 
-run();
+module.exports = {
+  run
+}

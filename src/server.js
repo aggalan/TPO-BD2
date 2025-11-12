@@ -2,14 +2,14 @@
 require('dotenv').config();
 const app = require('./app');
 const { connectAll } = require('./config/db');
-
+const loadData = require('./scripts/loadData');
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
     await connectAll();
 
-    //correr el csv initial data load only once
+    await loadData.run();
 
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);
