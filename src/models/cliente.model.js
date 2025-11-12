@@ -31,6 +31,7 @@ const ClienteSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        trim: true,
     },
     telefono: {
         type: String,
@@ -43,9 +44,13 @@ const ClienteSchema = new mongoose.Schema({
     estado_activo: {
         type: Boolean,
         default: true,
+        index: true,
     },
     vehiculos: [VehiculoSchema],
 
 }, { timestamps: true });
+
+ClienteSchema.index({ id_cliente: 1, estado_activo: 1 });
+
 
 module.exports = mongoose.model('Cliente', ClienteSchema);

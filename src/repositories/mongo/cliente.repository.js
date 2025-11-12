@@ -76,32 +76,19 @@ const clientesSinPolizasActivas = async () => {
         {
             $lookup: {
                 from: 'polizas',
-                let: { clienteId: '$id_cliente' },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ['$id_cliente', '$$clienteId'] },
-                                    { $eq: ['$estado', 'activa'] }
-                                ]
-                            }
-                        }
+                localField: 'id_cliente',
+                foreignField: 'id_cliente',
+                as: 'polizas_vigentes'
+            }
+        },
+        { $addFields: { polizas_vigentes: {
+                    $filter: {
+                        input: '$polizas_vigentes',
+                        as: 'poliza',
+                        cond: { $eq: ['$$poliza.estado', 'activa'] }
                     }
-                ],
-                as: 'polizas_activas'
-            }
-        },
-        {
-            $match: {
-                polizas_activas: { $size: 0 }
-            }
-        },
-        {
-            $project: {
-                polizas_activas: 0
-            }
-        }
+                }}}
+
     ]);
 };
 

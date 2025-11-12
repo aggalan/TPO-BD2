@@ -23,13 +23,16 @@ const agentesActivosConCantidadPolizas = async () => {
                             },
                         },
                     },
+                    { $count: 'total' }
                 ],
                 as: 'polizas',
             },
         },
         {
             $addFields: {
-                cantidad_polizas: { $size: '$polizas' },
+                cantidad_polizas: {
+                    $ifNull: [{ $arrayElemAt: ['$polizas.total', 0] }, 0]
+                },
             },
         },
         {
@@ -49,39 +52,57 @@ const agentesActivosConCantidadPolizas = async () => {
 };
 
 const agentesYCantidadDeSiniestros = async () => {
-    return Siniestro.aggregate([
+    return Agente.aggregate([
         {
             $lookup: {
                 from: 'polizas',
-                localField: 'nro_poliza',
-                foreignField: 'nro_poliza',
-                as: 'poliza',
-            },
-        },
-        { $unwind: '$poliza' },
-        {
-            $group: {
-                _id: '$poliza.id_agente',
-                cantidad_siniestros: { $sum: 1 },
-            },
-        },
-        {
-            $lookup: {
-                from: 'agentes',
-                localField: '_id',
+                localField: 'id_agente',
                 foreignField: 'id_agente',
-                as: 'agente',
+                pipeline: [
+                    { $project: { nro_poliza: 1, _id: 0 } },
+                    {
+                        $lookup: {
+                            from: 'siniestros',
+                            localField: 'nro_poliza',
+                            foreignField: 'nro_poliza',
+                            pipeline: [
+                                { $count: 'total' } // ⭐ CAMBIO: usa $count en vez de $size
+                            ],
+                            as: 'siniestros',
+                        },
+                    },
+                    {
+                        $addFields: {
+                            cantidad_siniestros_por_poliza: {
+                                $ifNull: [
+                                    { $arrayElemAt: ['$siniestros.total', 0] },
+                                    0
+                                ]
+                            },
+                        },
+                    },
+                ],
+                as: 'polizas',
             },
         },
-        { $unwind: '$agente' },
+        {
+            $addFields: {
+                cantidad_siniestros: {
+                    $ifNull: [
+                        { $sum: '$polizas.cantidad_siniestros_por_poliza' },
+                        0
+                    ],
+                },
+            },
+        },
         {
             $project: {
                 _id: 0,
-                id_agente: '$_id',
-                nombre: '$agente.nombre',
-                matricula: '$agente.matricula',
-                zona: '$agente.zona',
-                activo: '$agente.activo',
+                id_agente: 1,
+                nombre: 1,
+                matricula: 1,
+                zona: 1,
+                activo: 1,
                 cantidad_siniestros: 1,
             },
         },

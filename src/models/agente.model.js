@@ -35,4 +35,8 @@ const AgenteSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
+AgenteSchema.index({ activo: 1, id_agente: 1 }); // Para búsquedas de agentes activos
+AgenteSchema.index({ zona: 1 }); // Si filtrás o agrupás por zona (común en análisis)
+
+
 module.exports = mongoose.model('Agente', AgenteSchema);
