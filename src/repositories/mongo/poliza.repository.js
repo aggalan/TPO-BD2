@@ -36,8 +36,8 @@ async function polizasVencidasConCliente() {
                     _id: 0,
                     nro_poliza: 1,
                     tipo: 1,
-                    fecha_fin: 1,
                     estado: 1,
+                    fecha_vencimiento: 1,
                     cliente: {
                         id_cliente: '$cliente.id_cliente',
                         nombre: '$cliente.nombre',
@@ -45,7 +45,7 @@ async function polizasVencidasConCliente() {
                     },
                 },
             },
-            {$sort: {fecha_fin: -1}},
+            {$sort: {fecha_vencimiento: -1}},
         ]);
 
         return results;
