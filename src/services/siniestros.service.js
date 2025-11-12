@@ -28,6 +28,7 @@ async function createSiniestro(siniestroData) {
         nro_poliza,
         fecha,
         estado,
+        tipo,
     } = siniestroData;
 
     const fechaSiniestro = parseDate(fecha);
@@ -39,6 +40,7 @@ async function createSiniestro(siniestroData) {
         ...siniestroData,
         fecha: fechaSiniestro,
         estado: normalizeSiniestroEstado(estado),
+        tipo: tipo.toLowerCase(),
     };
 
     const polizaActiva = await getActivePolizaById(nro_poliza);
