@@ -1,36 +1,40 @@
-
-
-services:
-  app:
-    build: .
-    container_name: tp-app
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./src:/app/src
-    env_file: ./.env
-    depends_on:
-      - mongo
-      - redis
-    command: npm run dev
-
-  mongo:
-    image: mongo:latest
-    container_name: tp-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-
-  redis:
-    image: redis:latest
-    container_name: tp-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-
-volumes:
-  mongo-data:
-  redis-data:
+#version: "3.8"
+#
+#services:
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: tp-app
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - .:/workspace
+#    env_file: ./.env
+#    depends_on:
+#      - mongo
+#      - redis
+#    command: npm run dev
+#
+#  mongo:
+#    image: mongo:6
+#    container_name: tp-mongo
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: example
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongo-data:/data/db
+#
+#  redis:
+#    image: redis:7
+#    container_name: tp-redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis-data:/data
+#
+#volumes:
+#  mongo-data:
+#  redis-data:
