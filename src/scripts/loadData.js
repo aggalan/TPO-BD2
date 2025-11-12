@@ -5,7 +5,7 @@ const path = require('path');
 
 const mongoose = require('mongoose');
 
-const { connectAll, redisClient } = require('../config/db');
+const { connectAll, redisClient,connectMongo } = require('../config/db');
 const Cliente = require('../models/cliente.model');
 const Poliza = require('../models/poliza.model');
 const Siniestro = require('../models/siniestro.model');
@@ -208,7 +208,7 @@ const seedMongo = async ({ clientes, polizasWithAgent, siniestros, vehiculos, ag
 
 const run = async () => {
   try {
-    await connectAll();
+    await connectMongo();
     const datasets = loadDatasets();
 
     await resetMongoCollections();
@@ -220,7 +220,7 @@ const run = async () => {
     process.exitCode = 1;
   } finally {
     await mongoose.disconnect();
-    await redisClient.quit();
+    console.log("jeje")
   }
 };
 

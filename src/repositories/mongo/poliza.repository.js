@@ -15,13 +15,11 @@ async function createPolizaMongo(polizaData) {
 
 async function polizasVencidasConCliente() {
     try {
-        const today = new Date();
 
         const results = await Poliza.aggregate([
             {
                 $match: {
                     estado: 'vencida',
-                    fecha_fin: {$lt: today},
                 },
             },
             {

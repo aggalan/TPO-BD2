@@ -47,5 +47,6 @@ const connectAll = async () => {
 
 module.exports = {
   connectAll,
-  redisClient
+  redisClient,
+  connectMongo
 };
