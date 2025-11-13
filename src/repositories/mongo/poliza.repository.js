@@ -8,7 +8,7 @@ async function createPolizaMongo(polizaData) {
     } catch (error) {
         console.error("Error en createPolizaMongo:", error);
         if (error.code === 11000) {
-            throw new Error(`Error: El número de póliza '${polizaData.nro_poliza}' ya existe.`);
+            throw new Error(`Error: El número de póliza '${polizaData.nro_poliza}' ya existe o el cliente ya tiene una póliza de ese tipo.`);
         }
         throw error;
     }

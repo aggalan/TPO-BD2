@@ -53,5 +53,6 @@ PolizaSchema.index({ estado: 1, fecha_inicio: 1 });       // usado en polizasAct
 PolizaSchema.index({ id_cliente: 1, estado: 1 });         // útil para joins y filtros por cliente
 PolizaSchema.index({ id_agente: 1, estado: 1 });          // útil si se filtra por agente + estado
 PolizaSchema.index({ id_cliente: 1, monto_cobertura: -1 });
+PolizaSchema.index({ id_cliente: 1, tipo: 1 }, { unique: true });
 
 module.exports = mongoose.model('Poliza', PolizaSchema);
