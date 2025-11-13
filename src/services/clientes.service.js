@@ -65,6 +65,8 @@ async function updateCliente(id_cliente, updateData) {
         'email',
         'telefono',
         'domicilio',
+        'vehiculos',
+        'estado_activo',
     ];
 
     const updateLimpio = {};
