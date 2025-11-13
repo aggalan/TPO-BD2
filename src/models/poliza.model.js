@@ -10,7 +10,6 @@ const PolizaSchema = new mongoose.Schema({
     id_cliente: {
         type: Number,
         required: true,
-        unique: true,
     },
     id_agente: {
         type: Number,
