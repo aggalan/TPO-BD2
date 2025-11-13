@@ -205,11 +205,26 @@ const clientesConMultiplesVehiculos = async () => {
                 nombre: 1,
                 apellido: 1,
                 estado_activo: 1,
-                vehiculos: '$vehiculos_asegurados'
+                vehiculos: {
+                    $map: {
+                        input: '$vehiculos_asegurados',
+                        as: 'v',
+                        in: {
+                            id_vehiculo: '$$v.id_vehiculo',
+                            nro_chasis: '$$v.nro_chasis',
+                            patente: '$$v.patente',
+                            marca: '$$v.marca',
+                            modelo: '$$v.modelo',
+                            anio: '$$v.anio',
+                            asegurado: '$$v.asegurado'
+                        }
+                    }
+                }
             }
         }
     ]);
 };
+
 
 const vehiculosAseguradosConClienteYPoliza = async () => {
     return Cliente.aggregate([
@@ -276,4 +291,5 @@ module.exports = {
     top10ClientesPorCobertura,
     clientesConMultiplesVehiculos,
     vehiculosAseguradosConClienteYPoliza,
+
 };
