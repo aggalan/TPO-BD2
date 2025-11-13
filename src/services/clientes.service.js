@@ -29,11 +29,18 @@ async function createCliente(clienteData) {
     try {
         const newCliente = await createClienteMongo(clienteData);
 
+        const cachesToInvalidate = [
+            CACHE_CLIENTES_ACTIVOS,       // Q1
+            CACHE_CLIENTES_SIN_POLIZAS,   // Q4
+        ];
 
-        await invalidateMultiple([
-            CACHE_CLIENTES_ACTIVOS,
-            CACHE_CLIENTES_SIN_POLIZAS, // CORREGIDO: Se descomentó
-        ]);
+        if (clienteData.vehiculos && clienteData.vehiculos.length > 0) {
+            cachesToInvalidate.push(CACHE_VEHICULOS_ASEGURADOS);
+            cachesToInvalidate.push(CACHE_CLIENTES_MULTI_VEHICULO);
+        }
+
+
+        await invalidateMultiple(cachesToInvalidate);
         return newCliente;
     } catch (error) {
         if (error.code === 11000) {
@@ -52,28 +59,17 @@ async function updateCliente(id_cliente, updateData) {
     }
 
     const updatedCliente = await updateClienteMongo(id_cliente, updateData);
+    const cachesToInvalidate = [
+        CACHE_CLIENTES_ACTIVOS,
+        CACHE_CLIENTES_SIN_POLIZAS,
+        CACHE_TOP_10_CLIENTES,
+        CACHE_CLIENTES_MULTI_VEHICULO,
+        CACHE_VEHICULOS_ASEGURADOS,
+    ];
 
-    const cachesToInvalidate = [];
-
-
-    if (updateData.estado_activo !== undefined) {
-        cachesToInvalidate.push(CACHE_CLIENTES_ACTIVOS);
-        cachesToInvalidate.push(CACHE_CLIENTES_SIN_POLIZAS);
-    }
-
-    if (updateData.vehiculos !== undefined) {
-        cachesToInvalidate.push(CACHE_VEHICULOS_ASEGURADOS);
-        cachesToInvalidate.push(CACHE_CLIENTES_MULTI_VEHICULO);
-    }
-
-
-    if (cachesToInvalidate.length > 0) {
-        await invalidateMultiple(cachesToInvalidate);
-    }
-
+    await invalidateMultiple(cachesToInvalidate);
     return updatedCliente;
 }
-
 
 async function deleteCliente(id_cliente) {
 

@@ -2,7 +2,20 @@ const Agente = require("../../models/agente.model");
 const Siniestro = require("../../models/siniestro.model");
 
 const getAgenteById = async (idAgente) => {
-    return Agente.findOne({ id_agente: idAgente }).lean();
+    return Agente.findOne(
+        { id_agente: idAgente },
+        {
+            _id: 0,
+            id_agente: 1,
+            nombre: 1,
+            apellido: 1,
+            matricula: 1,
+            telefono: 1,
+            email: 1,
+            zona: 1,
+            activo: 1
+        }
+    ).lean();
 };
 
 const agentesActivosConCantidadPolizas = async () => {

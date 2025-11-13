@@ -221,8 +221,9 @@ const run = async () => {
     console.error('❌ Error durante la carga de datos:', error);
     process.exitCode = 1;
   } finally {
+
     await mongoose.disconnect();
-    console.log("jeje")
+    process.exit(0);
   }
 };
 

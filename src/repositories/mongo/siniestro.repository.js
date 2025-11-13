@@ -1,67 +1,46 @@
-    const Siniestro = require('../../models/siniestro.model');
+const Siniestro = require('../../models/siniestro.model');
 
 
-    async function createSiniestro(siniestroData) {
-        try {
-            return await Siniestro.create(siniestroData);
-        } catch (error) {
-            console.error("Error en createSiniestroMongo:", error);
-            if (error.code === 11000) {
-                throw new Error(`Error: El ID de siniestro '${siniestroData.id_siniestro}' ya existe.`);
-            }
-            throw error;
+async function createSiniestro(siniestroData) {
+    try {
+        const newSiniestro = await Siniestro.create(siniestroData);
+        const { _id, __v, createdAt, updatedAt, ...rest } = newSiniestro.toObject();
+        return rest;
+    } catch (error) {
+        console.error("Error en createSiniestroMongo:", error);
+        if (error.code === 11000) {
+            throw new Error(`Error: El ID de siniestro '${siniestroData.id_siniestro}' ya existe.`);
         }
+        throw error;
     }
+}
 
-    async function getSiniestrosAbiertosConCliente() {
-        return Siniestro.aggregate([
-            { $match: { estado: 'abierto' } },
-            {
-                $lookup: {
-                    from: 'clientes',
-                    localField: 'id_cliente',
-                    foreignField: 'id_cliente',
-                    as: 'cliente',
-                    pipeline: [
-                        {
-                            $project: {
-                                _id: 0,
-                                id_cliente: 1,
-                                nombre: 1,
-                                apellido: 1,
-                                email: 1,
-                                telefono: 1
-                            }
+async function getSiniestrosAbiertosConCliente() {
+    return Siniestro.aggregate([
+        { $match: { estado: 'abierto' } },
+        {
+            $lookup: {
+                from: 'clientes',
+                localField: 'id_cliente',
+                foreignField: 'id_cliente',
+                as: 'cliente',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 0,
+                            id_cliente: 1,
+                            nombre: 1,
+                            apellido: 1,
+                            email: 1,
+                            telefono: 1
                         }
-                    ]
-                }
-            },
-            { $unwind: '$cliente' },
-            {
-                $project: {
-                    _id: 0,
-                    id_siniestro: 1,
-                    nro_poliza: 1,
-                    fecha: 1,
-                    tipo: 1,
-                    descripcion: 1,
-                    monto: 1,
-                    estado: 1,
-                    cliente: 1
-                }
+                    }
+                ]
             }
-        ]);
-    }
-    async function getSiniestrosAccidenteUltimoAnio() {
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-        return Siniestro.find(
-            {
-                tipo: 'accidente',
-                fecha: { $gte: oneYearAgo }
-            },
-            {
+        },
+        { $unwind: '$cliente' },
+        {
+            $project: {
                 _id: 0,
                 id_siniestro: 1,
                 nro_poliza: 1,
@@ -69,13 +48,38 @@
                 tipo: 1,
                 descripcion: 1,
                 monto: 1,
-                estado: 1
+                estado: 1,
+                cliente: 1
             }
-        ).lean();
-    }
+        }
+    ]);
+}
+async function getSiniestrosAccidenteUltimoAnio() {
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    module.exports = {
-        createSiniestro,
-        getSiniestrosAbiertosConCliente,
-        getSiniestrosAccidenteUltimoAnio
-    }
+    return Siniestro.find(
+        {
+            tipo: 'accidente',
+            fecha: { $gte: oneYearAgo }
+        },
+        {
+            _id: 0,
+            id_siniestro: 1,
+            nro_poliza: 1,
+            fecha: 1,
+            tipo: 1,
+            descripcion: 1,
+            monto: 1,
+            estado: 1,
+            id_cliente: 1,
+            id_agente: 1
+        }
+    ).lean();
+}
+
+module.exports = {
+    createSiniestro,
+    getSiniestrosAbiertosConCliente,
+    getSiniestrosAccidenteUltimoAnio
+}

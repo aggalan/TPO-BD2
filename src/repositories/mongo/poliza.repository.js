@@ -3,7 +3,8 @@ const Poliza = require("../../models/poliza.model");
 async function createPolizaMongo(polizaData) {
     try {
         const newPoliza = await Poliza.create(polizaData);
-        return newPoliza;
+        const { _id, __v, createdAt, updatedAt, ...rest } = newPoliza.toObject();
+        return rest;
     } catch (error) {
         console.error("Error en createPolizaMongo:", error);
         if (error.code === 11000) {
@@ -23,6 +24,7 @@ async function polizasVencidasConCliente() {
             },
             {
                 $project: {
+                    _id: 0,
                     nro_poliza: 1,
                     tipo: 1,
                     estado: 1,
@@ -56,7 +58,7 @@ async function polizasVencidasConCliente() {
                     tipo: 1,
                     estado: 1,
                     fecha_vencimiento: 1,
-                    cliente: 1, // Ya viene proyectado del lookup
+                    cliente: 1,
                 },
             },
             { $sort: { fecha_vencimiento: -1 } },
@@ -124,9 +126,21 @@ async function polizasSuspendidasConEstadoCliente() {
 }
 
 async function getPolizaById(nroPoliza) {
-    return Poliza.findOne({
-        nro_poliza: nroPoliza,
-    }).lean();
+    return Poliza.findOne(
+        { nro_poliza: nroPoliza },
+        {
+            _id: 0,
+            nro_poliza: 1,
+            id_cliente: 1,
+            id_agente: 1,
+            tipo: 1,
+            fecha_inicio: 1,
+            fecha_vencimiento: 1,
+            monto_prima: 1,
+            monto_cobertura: 1,
+            estado: 1
+        }
+    ).lean();
 }
 
 module.exports = {

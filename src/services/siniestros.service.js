@@ -58,7 +58,7 @@ async function persistSiniestro(siniestroData) {
         id_agente: agenteAsociado?.id_agente,
     };
 
-    return newSiniestro = await createSiniestroMongo(cleanedData);
+    return await createSiniestroMongo(cleanedData);
 }
 
 async function createSiniestro(siniestroData) {
