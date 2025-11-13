@@ -1,6 +1,4 @@
 const Agente = require("../../models/agente.model");
-const Siniestro = require("../../models/siniestro.model");
-
 const getAgenteById = async (idAgente) => {
     return Agente.findOne(
         { id_agente: idAgente },
@@ -28,13 +26,8 @@ const agentesActivosConCantidadPolizas = async () => {
                 pipeline: [
                     {
                         $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ['$id_agente', '$$agenteId'] },
-                                    { $eq: ['$estado', 'activa'] },
-                                ],
-                            },
-                        },
+                            $expr: { $eq: ['$id_agente', '$$agenteId'] }
+                        }
                     },
                     { $count: 'total' }
                 ],

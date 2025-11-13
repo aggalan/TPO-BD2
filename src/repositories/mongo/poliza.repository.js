@@ -23,16 +23,6 @@ async function polizasVencidasConCliente() {
                 },
             },
             {
-                $project: {
-                    _id: 0,
-                    nro_poliza: 1,
-                    tipo: 1,
-                    estado: 1,
-                    fecha_vencimiento: 1,
-                    id_cliente: 1,
-                }
-            },
-            {
                 $lookup: {
                     from: 'clientes',
                     localField: 'id_cliente',
@@ -56,8 +46,11 @@ async function polizasVencidasConCliente() {
                     _id: 0,
                     nro_poliza: 1,
                     tipo: 1,
-                    estado: 1,
+                    fecha_inicio: 1,
                     fecha_vencimiento: 1,
+                    monto_prima:1,
+                    monto_cobertura:1,
+                    id_agente:1,
                     cliente: 1,
                 },
             },
@@ -79,8 +72,8 @@ async function polizasActivasOrdenadas() {
                 tipo: 1,
                 fecha_inicio: 1,
                 fecha_vencimiento: 1,
-                prima_mensual: 1,
-                cobertura_total: 1,
+                monto_prima: 1,
+                monto_cobertura: 1,
                 id_cliente: 1,
                 id_agente: 1,
             },
@@ -109,7 +102,11 @@ async function polizasSuspendidasConEstadoCliente() {
                     _id: 0,
                     nro_poliza: 1,
                     tipo: 1,
-                    estado: 1,
+                    fecha_inicio: 1,
+                    fecha_vencimiento: 1,
+                    monto_prima:1,
+                    monto_cobertura:1,
+                    id_agente:1,
                     cliente: {
                         id_cliente: '$cliente.id_cliente',
                         nombre: '$cliente.nombre',

@@ -17,6 +17,7 @@ const createCliente = async (payload) => {
     const { _id, __v, createdAt, updatedAt, ...rest } = cliente.toObject();
     return rest;
 };
+
 const updateCliente = async (idCliente, updates) => {
     return Cliente.findOneAndUpdate(
         { id_cliente: idCliente },
@@ -78,8 +79,8 @@ const clientesActivosConPolizasVigentes = async () => {
                             tipo: 1,
                             fecha_inicio: 1,
                             fecha_fin: 1,
-                            prima_mensual: 1,
-                            cobertura_total: 1,
+                            monto_prima: 1,
+                            monto_cobertura: 1,
                         },
                     },
                 ],
@@ -229,7 +230,8 @@ const vehiculosAseguradosConClienteYPoliza = async () => {
             }
         },
         {
-            $unwind: '$poliza'
+            $unwind: '$poliza',
+            preserveNullAndEmptyArrays: true
         },
         {
             $project: {
