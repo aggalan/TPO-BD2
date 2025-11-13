@@ -31,12 +31,23 @@ async function createCliente(clienteData) {
 
         const cachesToInvalidate = [
             CACHE_CLIENTES_ACTIVOS,       // Q1
-            CACHE_CLIENTES_SIN_POLIZAS,   // Q4
+            CACHE_CLIENTES_SIN_POLIZAS, // Q4
         ];
 
         if (clienteData.vehiculos && clienteData.vehiculos.length > 0) {
-            cachesToInvalidate.push(CACHE_VEHICULOS_ASEGURADOS);
-            cachesToInvalidate.push(CACHE_CLIENTES_MULTI_VEHICULO);
+
+            const tieneAsegurados = clienteData.vehiculos.some(v => v.asegurado === true);
+            if (tieneAsegurados) {
+                cachesToInvalidate.push(CACHE_VEHICULOS_ASEGURADOS);
+            }
+
+
+            const vehiculosAsegurados = clienteData.vehiculos.filter(v => v.asegurado === true);
+
+
+            if (vehiculosAsegurados.length > 1) {
+                cachesToInvalidate.push(CACHE_CLIENTES_MULTI_VEHICULO);
+            }
         }
 
 
