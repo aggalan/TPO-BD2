@@ -222,16 +222,32 @@ const vehiculosAseguradosConClienteYPoliza = async () => {
             $unwind: '$vehiculos'
         },
         {
+            $match: {
+                'vehiculos.asegurado': true
+            }
+        },
+        {
             $lookup: {
                 from: 'polizas',
-                localField: 'id_cliente',
-                foreignField: 'id_cliente',
+                let: { id_cliente_local: '$id_cliente' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ['$id_cliente', '$$id_cliente_local']
+                            },
+                            tipo: 'auto'
+                        }
+                    }
+                ],
                 as: 'poliza'
             }
         },
         {
-            $unwind: '$poliza',
-            preserveNullAndEmptyArrays: true
+            $unwind: {
+                path:'$poliza',
+                preserveNullAndEmptyArrays: true // Mantenemos esto para no perder vehículos sin póliza de auto
+            }
         },
         {
             $project: {
