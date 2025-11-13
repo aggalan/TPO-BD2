@@ -58,7 +58,31 @@ async function updateCliente(id_cliente, updateData) {
         throw new Error('Cliente no encontrado');
     }
 
-    const updatedCliente = await updateClienteMongo(id_cliente, updateData);
+
+    const camposPermitidos = [
+        'nombre',
+        'apellido',
+        'email',
+        'telefono',
+        'domicilio',
+    ];
+
+    const updateLimpio = {};
+
+    camposPermitidos.forEach(campo => {
+        if (updateData.hasOwnProperty(campo)) {
+            updateLimpio[campo] = updateData[campo];
+        }
+    });
+
+    if (Object.keys(updateLimpio).length === 0) {
+        throw new Error('No se proporcionaron datos válidos para actualizar.');
+    }
+
+
+
+    const updatedCliente = await updateClienteMongo(id_cliente, updateLimpio);
+
     const cachesToInvalidate = [
         CACHE_CLIENTES_ACTIVOS,
         CACHE_CLIENTES_SIN_POLIZAS,
