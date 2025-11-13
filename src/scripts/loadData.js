@@ -11,6 +11,7 @@ const Cliente = require('../models/cliente.model');
 const Poliza = require('../models/poliza.model');
 const Siniestro = require('../models/siniestro.model');
 const Agente = require('../models/agente.model');
+const {normalizeSiniestroEstado, normalizePolizaEstado} = require("../utils/utils");
 
 const rootDir = path.join(__dirname, '..', '..');
 const datasetsDir = path.join(rootDir, 'datasets');
@@ -51,35 +52,7 @@ const parseDate = (value) => {
   return new Date(year, month - 1, day);
 };
 
-const normalizePolizaEstado = (estado) => {
-  if (!estado) return 'activa';
-  const standardized = estado.toString().trim().toLowerCase();
-  switch (standardized) {
-    case 'activa':
-      return 'activa';
-    case 'vencida':
-      return 'vencida';
-    case 'suspendida':
-      return 'suspendida';
-    case 'cancelada':
-      return 'cancelada';
-    default:
-      return 'activa';
-  }
-};
 
-const normalizeSiniestroEstado = (estado) => {
-  if (!estado) return 'abierto';
-  const standardized = estado.toString().trim().toLowerCase();
-
-  if (standardized.startsWith('abierto')) return 'abierto';
-  if (standardized.includes('evalu') || standardized.includes('proceso')) return 'en_proceso';
-  if (standardized.includes('rechaz')) return 'cerrado_rechazado';
-  if (standardized.includes('pag')) return 'cerrado_pagado';
-  if (standardized.startsWith('cerrado')) return 'cerrado_pagado';
-
-  return 'abierto';
-};
 
 const loadDatasets = () => {
   const clientes = readCsv('clientes.csv').map((row) => ({

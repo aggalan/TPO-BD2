@@ -43,12 +43,12 @@ async function getSiniestrosAbiertosConCliente() {
             $project: {
                 _id: 0,
                 id_siniestro: 1,
-                nro_poliza: 1,
-                fecha: 1,
+                // nro_poliza: 1,
+                // fecha: 1,
                 tipo: 1,
-                descripcion: 1,
+                // descripcion: 1,
                 monto: 1,
-                estado: 1,
+                // estado: 1,
                 cliente: 1
             }
         }

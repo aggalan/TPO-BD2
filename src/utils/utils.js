@@ -35,7 +35,7 @@ const normalizeSiniestroEstado = (estado) => {
     const normalized = estado.toString().trim().toLowerCase();
     if (normalized.startsWith('abierto')) return 'abierto';
     if (normalized.startsWith('cerrado')) return 'cerrado';
-    if (normalized.includes('evalu')) return 'en_evaluacion';
+    if (normalized.startsWith('en')) return 'en_evaluacion';
     return 'abierto';
 };
 
