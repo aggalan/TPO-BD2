@@ -7,7 +7,7 @@ const { CACHE_VEHICULOS_ASEGURADOS } = require('../repositories/redis/cache.keys
 async function vehiculosAseguradosConClienteYPoliza() {
     return getOrSetCache(
         CACHE_VEHICULOS_ASEGURADOS,
-        300, // 5 minutos
+        42600,
         vehiculosAseguradosConClienteYPolizaMongo,
     );
 }

@@ -124,7 +124,7 @@ async function getClienteById(id_cliente) {
 async function clientesActivosConPolizasVigentes() {
     return getOrSetCache(
         CACHE_CLIENTES_ACTIVOS,
-        300, // 5 minutos TTL
+        42600,
         clientesActivosConPolizasVigentesMongo
     );
 }
@@ -133,7 +133,7 @@ async function clientesActivosConPolizasVigentes() {
 async function clientesSinPolizasActivas() {
     return getOrSetCache(
         CACHE_CLIENTES_SIN_POLIZAS,
-        3600, // 1 hora TTL
+        3600,
         clientesSinPolizasActivasMongo
     );
 }
@@ -151,7 +151,7 @@ async function top10ClientesPorCobertura() {
 async function clientesConMultiplesVehiculos() {
     return getOrSetCache(
         CACHE_CLIENTES_MULTI_VEHICULO,
-        3600, // 1 hora TTL
+        3600,
         clientesConMultiplesVehiculosMongo
     );
 }
@@ -160,7 +160,7 @@ async function clientesConMultiplesVehiculos() {
 async function vehiculosAseguradosConClienteYPoliza() {
     return getOrSetCache(
         CACHE_VEHICULOS_ASEGURADOS,
-        300, //TTL
+        42600, //TTL
         vehiculosAseguradosConClienteYPolizaMongo
     );
 }

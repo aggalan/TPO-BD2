@@ -13,7 +13,7 @@ const {
 async function agentesYCantidadDeSiniestros() {
     return getOrSetCache(
         CACHE_AGENTES_SINIESTROS,
-        600, // 10 minutos
+        3600,
         agentesYCantidadDeSiniestrosMongo,
     );
 }
@@ -21,7 +21,7 @@ async function agentesYCantidadDeSiniestros() {
 async function agentesActivosConCantidadPolizas() {
     return getOrSetCache(
         CACHE_AGENTES_POLIZAS,
-        300, // 5 minutos
+        3600,
         agentesActivosConCantidadPolizasMongo,
     );
 }

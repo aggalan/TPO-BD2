@@ -75,7 +75,7 @@ async function createSiniestro(siniestroData) {
 async function siniestrosAbiertosConCliente() {
     return getOrSetCache(
         CACHE_SINIESTROS_ABIERTOS,
-        300, // 5 minutos
+        3600,
         getSiniestrosAbiertosConClienteMongo,
     );
 }
@@ -83,7 +83,7 @@ async function siniestrosAbiertosConCliente() {
 async function siniestrosAccidenteUltimoAnio() {
     return getOrSetCache(
         CACHE_SINIESTROS_ACCIDENTES_ANIO,
-        1800, // 30 minutos
+        42600,
         getSiniestrosAccidenteUltimoAnioMongo,
     );
 }

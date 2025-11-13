@@ -80,7 +80,7 @@ async function createPoliza(polizaData) {
 async function polizasVencidasConCliente() {
     return getOrSetCache(
         CACHE_POLIZAS_VENCIDAS,
-        900, // 15 minutos
+        42600,
         polizasVencidasConClienteMongo,
     );
 }
@@ -88,7 +88,7 @@ async function polizasVencidasConCliente() {
 async function polizasActivasOrdenadas() {
     return getOrSetCache(
         CACHE_POLIZAS_ACTIVAS_ORDENADAS,
-        300, // 5 minutos
+        3600,
         polizasActivasOrdenadasMongo,
     );
 }
@@ -96,7 +96,7 @@ async function polizasActivasOrdenadas() {
 async function polizasSuspendidasConEstadoCliente() {
     return getOrSetCache(
         CACHE_POLIZAS_SUSPENDIDAS,
-        600, // 10 minutos
+        3600,
         polizasSuspendidasConEstadoClienteMongo,
     );
 }
