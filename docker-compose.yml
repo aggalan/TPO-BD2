@@ -1,36 +1,36 @@
 
 
-services:
-  app:
-    build: .
-    container_name: tp-app
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./src:/app/src
-    env_file: ./.env
-    depends_on:
-      - mongo
-      - redis
-    command: npm run dev
+# services:
+#   app:
+#     build: .
+#     container_name: tp-app
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - ./src:/app/src
+#     env_file: ./.env
+#     depends_on:
+#       - mongo
+#       - redis
+#     command: npm run dev
 
-  mongo:
-    image: mongo:latest
-    container_name: tp-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
+#   mongo:
+#     image: mongo:latest
+#     container_name: tp-mongo
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
 
 
-  redis:
-    image: redis:latest
-    container_name: tp-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
+#   redis:
+#     image: redis:latest
+#     container_name: tp-redis
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis-data:/data
 
-volumes:
-  mongo-data:
-  redis-data:
+# volumes:
+#   mongo-data:
+#   redis-data:
