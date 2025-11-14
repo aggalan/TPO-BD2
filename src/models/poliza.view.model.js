@@ -5,8 +5,8 @@ const PolizaActivaSchema = new mongoose.Schema({
     tipo: { type: String },
     fecha_inicio: { type: Date },
     fecha_vencimiento: { type: Date },
-    prima_mensual: { type: Number },
-    cobertura_total: { type: Number },
+    monto_prima: { type: Number },
+    monto_cobertura: { type: Number },
     id_cliente: { type: Number },
     id_agente: { type: Number },
 }, {
