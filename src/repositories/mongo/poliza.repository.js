@@ -65,7 +65,7 @@ async function polizasVencidasConCliente() {
     }
 }
 async function polizasActivasOrdenadas() {
-    return await connection.db.collection('polizas_activas_ordenadas').find({}).lean();
+    return PolizaActivaView.find({}).lean();
 }
 
 async function polizasSuspendidasConEstadoCliente() {
