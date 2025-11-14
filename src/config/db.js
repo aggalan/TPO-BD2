@@ -11,14 +11,10 @@ const {
   REDIS_PORT
 } = process.env;
 
-const viewName = 'vista_polizas_activas';
-const viewDefinition = [
-  {
-    $match: { estado: 'activa' }
-  },
-  {
-    $sort: { fecha_inicio: 1 }
-  },
+const viewName = 'polizas_activas_ordenadas';
+const viewPipeline = [
+  { $match: { estado: 'activa' } },
+  { $sort: { fecha_inicio: 1 } },
   {
     $project: {
       _id: 0,
@@ -26,10 +22,10 @@ const viewDefinition = [
       tipo: 1,
       fecha_inicio: 1,
       fecha_vencimiento: 1,
-      prima_mensual: 1,
-      cobertura_total: 1,
+      monto_prima: 1,
+      monto_cobertura: 1,
       id_cliente: 1,
-      id_agente: 1
+      id_agente: 1,
     }
   }
 ];
