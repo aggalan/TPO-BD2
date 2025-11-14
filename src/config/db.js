@@ -11,12 +11,60 @@ const {
   REDIS_PORT
 } = process.env;
 
+const viewName = 'vista_polizas_activas';
+const viewDefinition = [
+  {
+    $match: { estado: 'activa' }
+  },
+  {
+    $sort: { fecha_inicio: 1 }
+  },
+  {
+    $project: {
+      _id: 0,
+      nro_poliza: 1,
+      tipo: 1,
+      fecha_inicio: 1,
+      fecha_vencimiento: 1,
+      prima_mensual: 1,
+      cobertura_total: 1,
+      id_cliente: 1,
+      id_agente: 1
+    }
+  }
+];
+
+
+const ensurePolizaActivaView = async () => {
+  try {
+    const db = mongoose.connection.db;
+
+    const collections = await db.listCollections({ name: viewName }).toArray();
+
+    if (collections.length > 0) {
+      await db.collection(viewName).drop();
+      console.log(`Vista '${viewName}' existente borrada.`);
+    }
+
+    await db.createView(viewName, 'polizas', viewDefinition);
+    console.log(`✅ Vista '${viewName}' creada correctamente.`);
+
+  } catch (err) {
+    console.error(`❌ Error al crear/actualizar la vista '${viewName}':`, err);
+    throw err;
+  }
+};
 const connectMongo = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('MongoDB Conectado');
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB Conectado...');
+
+    await ensurePolizaActivaView();
   } catch (err) {
-    console.error('Error conectando a MongoDB:', err.message);
+    console.error(err.message);
     process.exit(1);
   }
 };

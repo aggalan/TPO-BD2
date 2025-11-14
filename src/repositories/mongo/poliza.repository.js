@@ -1,4 +1,5 @@
 const Poliza = require("../../models/poliza.model");
+const PolizaActivaView = require("../../models/poliza.view.model");
 
 async function createPolizaMongo(polizaData) {
     try {
@@ -64,20 +65,7 @@ async function polizasVencidasConCliente() {
 }
 async function polizasActivasOrdenadas() {
     try {
-        return await Poliza.find(
-            {estado: 'activa'},
-            {
-                _id: 0,
-                nro_poliza: 1,
-                tipo: 1,
-                fecha_inicio: 1,
-                fecha_vencimiento: 1,
-                monto_prima: 1,
-                monto_cobertura: 1,
-                id_cliente: 1,
-                id_agente: 1,
-            },
-        ).sort({fecha_inicio: 1}).lean();
+        return await PolizaActivaView.find({}).lean();
     }catch(error) {
         console.error("Error en activa:",error);
         throw error;

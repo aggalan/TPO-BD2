@@ -61,7 +61,6 @@ async function createCliente(clienteData) {
     }
 }
 
-
 async function updateCliente(id_cliente, updateData) {
 
     const clienteExistente = await getClienteByIdMongo(id_cliente);
@@ -121,9 +120,6 @@ async function deleteCliente(id_cliente) {
 
     return await updateCliente(id_cliente, { estado_activo: false });
 }
-
-
-
 
 async function getClienteById(id_cliente) {
     return await getClienteByIdMongo(id_cliente);
