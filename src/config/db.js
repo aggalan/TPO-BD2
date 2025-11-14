@@ -39,18 +39,23 @@ const ensurePolizaActivaView = async () => {
   try {
     const db = mongoose.connection.db;
 
-    const collections = await db.listCollections({ name: viewName }).toArray();
+    if (!db) throw new Error('mongoose.connection.db no está disponible (asegurate de conectar con mongoose).');
 
-    if (collections.length > 0) {
+    const existing = await db.listCollections({ name: viewName }).toArray();
+    if (existing.length > 0) {
       await db.collection(viewName).drop();
-      console.log(`Vista '${viewName}' existente borrada.`);
+      console.log("Vista '${viewName}' existente borrada.");
     }
 
-    await db.createView(viewName, 'polizas', viewDefinition);
-    console.log(`✅ Vista '${viewName}' creada correctamente.`);
 
+    await db.createCollection(viewName, {
+      viewOn: 'polizas',
+      pipeline: viewPipeline
+    });
+
+    console.log("✅ Vista '${viewName}' creada correctamente.");
   } catch (err) {
-    console.error(`❌ Error al crear/actualizar la vista '${viewName}':`, err);
+    console.error("❌ Error al crear/actualizar la vista '${viewName}':", err);
     throw err;
   }
 };
