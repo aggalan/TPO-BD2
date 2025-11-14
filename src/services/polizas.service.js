@@ -86,11 +86,7 @@ async function polizasVencidasConCliente() {
 }
 
 async function polizasActivasOrdenadas() {
-    return getOrSetCache(
-        CACHE_POLIZAS_ACTIVAS_ORDENADAS,
-        3600,
-        polizasActivasOrdenadasMongo,
-    );
+    return await polizasActivasOrdenadasMongo()
 }
 
 async function polizasSuspendidasConEstadoCliente() {

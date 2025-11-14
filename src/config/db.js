@@ -11,7 +11,7 @@ const {
   REDIS_PORT
 } = process.env;
 
-const viewName = 'polizas_activas_ordenadas';
+const viewName = 'vista_polizas_activas';
 const viewPipeline = [
   { $match: { estado: 'activa' } },
   { $sort: { fecha_inicio: 1 } },
